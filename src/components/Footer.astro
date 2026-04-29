@@ -1,0 +1,114 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer" id="contacto">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="logo">
+        <span class="logo-text">MACG</span>
+        <span class="logo-subtext">Propiedades</span>
+      </div>
+      <p class="footer-desc">
+        Expertos en arriendo y venta de propiedades, ofreciendo seguridad y confianza en cada transacción.
+      </p>
+    </div>
+    
+    <div class="footer-links">
+      <h3 class="footer-title">Enlaces Rápidos</h3>
+      <ul>
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/propiedades">Catálogo de Propiedades</a></li>
+        <li><a href="/seguros">Seguros y Garantías</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-contact">
+      <h3 class="footer-title">Contacto</h3>
+      <p><strong>Email:</strong> contacto@macg.cl</p>
+      <p><strong>Teléfono:</strong> +56 9 1234 5678</p>
+      <p><strong>Dirección:</strong> Av. Providencia 1234, Santiago, Chile</p>
+    </div>
+  </div>
+  
+  <div class="footer-bottom container">
+    <p>&copy; {currentYear} MACG Propiedades. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background-color: var(--color-primary-dark);
+    color: var(--color-surface);
+    padding-top: var(--space-12);
+    margin-top: auto;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-surface);
+    line-height: 1;
+  }
+
+  .logo-subtext {
+    font-size: 0.75rem;
+    color: var(--color-secondary-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .footer-desc {
+    margin-top: var(--space-4);
+    color: var(--color-secondary-light);
+  }
+
+  .footer-title {
+    color: var(--color-surface);
+    margin-bottom: var(--space-4);
+    font-size: 1.125rem;
+  }
+
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: var(--space-2);
+  }
+
+  .footer-links a {
+    color: var(--color-secondary-light);
+  }
+
+  .footer-links a:hover {
+    color: var(--color-accent-light);
+  }
+
+  .footer-contact p {
+    color: var(--color-secondary-light);
+    margin-bottom: var(--space-2);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--space-4) 0;
+    text-align: center;
+    color: var(--color-secondary-light);
+    font-size: 0.875rem;
+  }
+</style>

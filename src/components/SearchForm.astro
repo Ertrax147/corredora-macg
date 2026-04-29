@@ -1,0 +1,123 @@
+---
+---
+
+<form class="search-form" action="/propiedades" method="GET">
+  <div class="search-fields">
+    <div class="field-group">
+      <label for="operation">Operación</label>
+      <div class="select-wrapper">
+        <select id="operation" name="op">
+          <option value="">Todas</option>
+          <option value="arriendo">Arriendo</option>
+          <option value="venta">Venta</option>
+        </select>
+        <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </div>
+    
+    <div class="field-group">
+      <label for="type">Tipo de Propiedad</label>
+      <div class="select-wrapper">
+        <select id="type" name="type">
+          <option value="">Cualquiera</option>
+          <option value="departamento">Departamento</option>
+          <option value="casa">Casa</option>
+          <option value="oficina">Oficina</option>
+        </select>
+        <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </div>
+    
+    <div class="field-group">
+      <label for="location">Ubicación</label>
+      <input type="text" id="location" name="loc" placeholder="Comuna, ciudad o barrio..." />
+    </div>
+
+    <button type="submit" class="btn btn-primary search-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      Buscar
+    </button>
+  </div>
+</form>
+
+<style>
+  .search-form {
+    background: var(--color-surface);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .search-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .search-fields {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+  }
+
+  .field-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+  }
+
+  input, select {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    transition: border-color var(--transition-fast);
+    appearance: none;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+  }
+
+  .select-wrapper {
+    position: relative;
+  }
+
+  .select-icon {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  .search-btn {
+    height: 48px; /* Matches input height roughly */
+    padding: 0 var(--space-8);
+    font-size: 1rem;
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 767px) {
+    .search-btn {
+      width: 100%;
+      margin-top: var(--space-2);
+    }
+  }
+</style>

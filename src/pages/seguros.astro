@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const insurances = [
+  {
+    title: "Seguro de Incendio y Sismo",
+    description: "Protege tu patrimonio ante imprevistos estructurales. Cobertura completa para la propiedad.",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>`
+  },
+  {
+    title: "Garantía de Arriendo",
+    description: "Asegura el pago mensual de tu arriendo aunque el arrendatario se atrase. Tranquilidad financiera total.",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`
+  },
+  {
+    title: "Responsabilidad Civil",
+    description: "Cobertura frente a daños a terceros ocasionados en o por la propiedad.",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`
+  }
+];
+---
+
+<Layout title="Seguros Inmobiliarios">
+  <div class="insurance-hero">
+    <div class="container">
+      <h1>Protección y Tranquilidad</h1>
+      <p>En MACG no solo encontramos tu propiedad ideal, también nos aseguramos de protegerla.</p>
+    </div>
+  </div>
+
+  <section class="container section">
+    <div class="intro-text">
+      <h2>Soluciones de Seguros a tu Medida</h2>
+      <p>Entendemos que una propiedad es una de las inversiones más importantes de tu vida. Por eso, ofrecemos una gama completa de seguros diseñados específicamente para las necesidades de propietarios y arrendatarios en Chile.</p>
+    </div>
+
+    <div class="insurance-grid">
+      {insurances.map(insurance => (
+        <div class="insurance-card">
+          <div class="icon-wrapper" set:html={insurance.icon} />
+          <h3>{insurance.title}</h3>
+          <p>{insurance.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container cta-content">
+      <h2>¿Necesitas asesoría sobre seguros?</h2>
+      <p>Nuestros ejecutivos expertos están listos para ayudarte a elegir la mejor cobertura para tu propiedad.</p>
+      <a href="#contacto" class="btn btn-primary btn-lg">Solicitar Asesoría</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .insurance-hero {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+    color: white;
+    padding: var(--space-16) 0;
+    text-align: center;
+  }
+
+  .insurance-hero h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .insurance-hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .insurance-hero h1 {
+      font-size: 3.5rem;
+    }
+  }
+
+  .section {
+    padding: var(--space-16) 0;
+  }
+
+  .intro-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto var(--space-12);
+  }
+
+  .intro-text h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .intro-text p {
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+
+  .insurance-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .insurance-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .insurance-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    text-align: center;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  .insurance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+    margin-bottom: var(--space-6);
+  }
+
+  .insurance-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .insurance-card p {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .cta-section {
+    background-color: var(--color-background);
+    padding: var(--space-16) 0;
+    text-align: center;
+  }
+
+  .cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .cta-content h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .cta-content p {
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    margin-bottom: var(--space-8);
+  }
+
+  .btn-lg {
+    padding: var(--space-3) var(--space-8);
+    font-size: 1.125rem;
+  }
+</style>

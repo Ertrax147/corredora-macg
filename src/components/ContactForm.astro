@@ -1,0 +1,97 @@
+---
+---
+
+<div class="contact-box">
+  <h3>¿Te interesa esta propiedad?</h3>
+  <p>Déjanos tus datos y un ejecutivo te contactará a la brevedad.</p>
+  
+  <form class="contact-form" id="propertyContactForm">
+    <div class="form-group">
+      <label for="name">Nombre completo</label>
+      <input type="text" id="name" required placeholder="Ej. Juan Pérez" />
+    </div>
+    
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" required placeholder="juan@ejemplo.com" />
+    </div>
+    
+    <div class="form-group">
+      <label for="phone">Teléfono</label>
+      <input type="tel" id="phone" required placeholder="+56 9 1234 5678" />
+    </div>
+    
+    <div class="form-group">
+      <label for="message">Mensaje</label>
+      <textarea id="message" rows="4" required placeholder="Me gustaría agendar una visita..."></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-primary w-full">Enviar consulta</button>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('propertyContactForm');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('¡Gracias por tu mensaje! Un ejecutivo de MACG se contactará contigo muy pronto.');
+      form.reset();
+    });
+  }
+</script>
+
+<style>
+  .contact-box {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 100px;
+  }
+
+  h3 {
+    margin-bottom: var(--space-2);
+    font-size: 1.25rem;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-6);
+  }
+
+  .form-group {
+    margin-bottom: var(--space-4);
+  }
+
+  label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-main);
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: #f8fafc;
+    transition: all var(--transition-fast);
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: var(--color-surface);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+  }
+
+  .w-full {
+    width: 100%;
+  }
+</style>

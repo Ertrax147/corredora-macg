@@ -1,0 +1,256 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import { getCollection } from 'astro:content';
+
+const allProperties = await getCollection('propiedades');
+const properties = allProperties.map(prop => ({
+  id: prop.id,
+  title: prop.data.title,
+  type: prop.data.type,
+  operation: prop.data.operation,
+  price: prop.data.price,
+  address: prop.data.address,
+  bedrooms: prop.data.bedrooms,
+  bathrooms: prop.data.bathrooms,
+  area: prop.data.area,
+  imageUrl: (prop.data.images && prop.data.images.length > 0) ? prop.data.images[0] : "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800"
+}));
+---
+
+<Layout title="Catálogo de Propiedades">
+  <div class="page-header">
+    <div class="container">
+      <h1>Propiedades en Arriendo y Venta</h1>
+      <p>Encuentra el lugar perfecto para ti, filtrando según tus necesidades.</p>
+    </div>
+  </div>
+
+  <div class="container catalog-container">
+    <aside class="filters-sidebar">
+      <div class="filters-card">
+        <h3>Filtros de Búsqueda</h3>
+        <form id="catalogFilters" class="filters-form">
+          <div class="filter-group">
+            <label for="f-op">Operación</label>
+            <select id="f-op">
+              <option value="">Todas</option>
+              <option value="arriendo">Arriendo</option>
+              <option value="venta">Venta</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="f-type">Tipo</label>
+            <select id="f-type">
+              <option value="">Todos</option>
+              <option value="departamento">Departamento</option>
+              <option value="casa">Casa</option>
+              <option value="oficina">Oficina</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Dormitorios</label>
+            <div class="rooms-selector">
+              <button type="button" class="room-btn active">Cualquiera</button>
+              <button type="button" class="room-btn">1+</button>
+              <button type="button" class="room-btn">2+</button>
+              <button type="button" class="room-btn">3+</button>
+              <button type="button" class="room-btn">4+</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary w-full" style="margin-top: var(--space-4);">
+            Aplicar Filtros
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="catalog-content">
+      <div class="results-info">
+        <p>Mostrando <strong>{properties.length}</strong> propiedades</p>
+        <div class="sort-by">
+          <label for="sort">Ordenar por:</label>
+          <select id="sort">
+            <option value="recent">Más recientes</option>
+            <option value="price-asc">Precio: Menor a Mayor</option>
+            <option value="price-desc">Precio: Mayor a Menor</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="property-grid">
+        {properties.map(prop => (
+          <PropertyCard {...prop} />
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page-header {
+    background-color: var(--color-primary-dark);
+    color: var(--color-surface);
+    padding: var(--space-12) 0;
+    text-align: center;
+  }
+
+  .page-header h1 {
+    color: var(--color-surface);
+    margin-bottom: var(--space-4);
+  }
+
+  .page-header p {
+    color: var(--color-secondary-light);
+    font-size: 1.125rem;
+  }
+
+  .catalog-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: var(--space-10) var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    .catalog-container {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+
+  .filters-sidebar {
+    width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .filters-sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 100px;
+    }
+  }
+
+  .filters-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .filters-card h3 {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .filter-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-main);
+  }
+
+  .filter-group select {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  }
+
+  .rooms-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .room-btn {
+    flex: 1;
+    min-width: 40px;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .room-btn:hover {
+    border-color: var(--color-primary);
+  }
+
+  .room-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  .catalog-content {
+    flex: 1;
+  }
+
+  .results-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 768px) {
+    .results-info {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .sort-by {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .sort-by label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .sort-by select {
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+  }
+
+  .property-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .property-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .w-full {
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SearchForm from '../components/SearchForm.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import { getCollection } from 'astro:content';
+
+const allProperties = await getCollection('propiedades');
+const recentProperties = allProperties
+  .slice(0, 3)
+  .map(prop => ({
+    id: prop.id,
+    title: prop.data.title,
+    type: prop.data.type,
+    operation: prop.data.operation,
+    price: prop.data.price,
+    address: prop.data.address,
+    bedrooms: prop.data.bedrooms,
+    bathrooms: prop.data.bathrooms,
+    area: prop.data.area,
+    imageUrl: (prop.data.images && prop.data.images.length > 0) ? prop.data.images[0] : "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800"
+  }));
+---
+
+<Layout title="Inicio">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000" alt="MACG Propiedades Hero" />
+      <div class="hero-overlay"></div>
+    </div>
+    
+    <div class="container hero-content">
+      <h1 class="hero-title">Encuentra tu próximo hogar con MACG</h1>
+      <p class="hero-subtitle">Expertos en corretaje de propiedades y soluciones de seguros.</p>
+      
+      <div class="search-container">
+        <SearchForm />
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Properties -->
+  <section class="recent-properties container section">
+    <h2 class="section-title">Propiedades Destacadas</h2>
+    <p class="section-subtitle">Explora nuestras últimas opciones disponibles</p>
+    
+    <div class="property-grid">
+      {recentProperties.map(prop => (
+        <PropertyCard {...prop} />
+      ))}
+    </div>
+    
+    <div class="view-all-container">
+      <a href="/propiedades" class="btn btn-outline btn-lg">Ver todo el catálogo</a>
+    </div>
+  </section>
+
+  <!-- Why Choose Us / Insurance Banner -->
+  <section class="insurance-banner">
+    <div class="container banner-content">
+      <div class="banner-text">
+        <h2>Mucho más que corretaje, somos tu respaldo</h2>
+        <p>Conoce nuestras soluciones de seguros para propietarios y arrendatarios. Protege tu inversión con nuestras garantías exclusivas.</p>
+        <a href="/seguros" class="btn btn-primary">Descubrir Seguros</a>
+      </div>
+      <div class="banner-image">
+        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800" alt="Seguros MACG" />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) 0;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(26, 54, 93, 0.7), rgba(15, 34, 64, 0.9));
+  }
+
+  .hero-content {
+    text-align: center;
+    color: var(--color-surface);
+    width: 100%;
+    animation: fadeIn var(--transition-normal);
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    color: var(--color-surface);
+    margin-bottom: var(--space-4);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-10);
+    opacity: 0.9;
+  }
+
+  @media (min-width: 768px) {
+    .hero-title {
+      font-size: 4rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+    }
+  }
+
+  .search-container {
+    margin: 0 auto;
+    transform: translateY(var(--space-8));
+  }
+
+  .section {
+    padding: var(--space-20) 0;
+  }
+
+  .property-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .property-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .property-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .view-all-container {
+    text-align: center;
+    margin-top: var(--space-10);
+  }
+
+  .btn-lg {
+    padding: var(--space-3) var(--space-8);
+    font-size: 1.125rem;
+  }
+
+  .insurance-banner {
+    background-color: var(--color-accent-light);
+    padding: var(--space-16) 0;
+    margin-bottom: var(--space-16);
+  }
+
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-10);
+  }
+
+  @media (min-width: 768px) {
+    .banner-content {
+      flex-direction: row;
+    }
+  }
+
+  .banner-text {
+    flex: 1;
+  }
+
+  .banner-text h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .banner-text p {
+    font-size: 1.125rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .banner-image {
+    flex: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
