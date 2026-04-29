@@ -6,8 +6,11 @@ const currentYear = new Date().getFullYear();
   <div class="container footer-grid">
     <div class="footer-brand">
       <div class="logo">
-        <span class="logo-text">MACG</span>
-        <span class="logo-subtext">Propiedades</span>
+        <img src="/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+        <div class="logo-text-container">
+          <span class="logo-text">MACG</span>
+          <span class="logo-subtext">Propiedades</span>
+        </div>
       </div>
       <p class="footer-desc">
         Expertos en arriendo y venta de propiedades, ofreciendo seguridad y confianza en cada transacción.
@@ -57,6 +60,17 @@ const currentYear = new Date().getFullYear();
     }
   }
 
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .logo-text-container {
+    display: flex;
+    flex-direction: column;
+  }
+
   .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
@@ -69,6 +83,12 @@ const currentYear = new Date().getFullYear();
     color: var(--color-secondary-light);
     letter-spacing: 1px;
     text-transform: uppercase;
+  }
+
+  .logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
   }
 
   .footer-desc {

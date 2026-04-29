@@ -1,4 +1,8 @@
 ---
+interface Props {
+  locations?: string[];
+}
+const { locations = [] } = Astro.props;
 ---
 
 <form class="search-form" action="/propiedades" method="GET">
@@ -6,10 +10,10 @@
     <div class="field-group">
       <label for="operation">Operación</label>
       <div class="select-wrapper">
-        <select id="operation" name="op">
+        <select id="operation" name="operation">
           <option value="">Todas</option>
-          <option value="arriendo">Arriendo</option>
-          <option value="venta">Venta</option>
+          <option value="Arriendo">Arriendo</option>
+          <option value="Venta">Venta</option>
         </select>
         <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
@@ -20,9 +24,9 @@
       <div class="select-wrapper">
         <select id="type" name="type">
           <option value="">Cualquiera</option>
-          <option value="departamento">Departamento</option>
-          <option value="casa">Casa</option>
-          <option value="oficina">Oficina</option>
+          <option value="Departamento">Departamento</option>
+          <option value="Casa">Casa</option>
+          <option value="Oficina">Oficina</option>
         </select>
         <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
@@ -30,7 +34,15 @@
     
     <div class="field-group">
       <label for="location">Ubicación</label>
-      <input type="text" id="location" name="loc" placeholder="Comuna, ciudad o barrio..." />
+      <div class="select-wrapper">
+        <select id="location" name="location">
+          <option value="">Cualquier ubicación</option>
+          {locations.map((loc: string) => (
+            <option value={loc}>{loc}</option>
+          ))}
+        </select>
+        <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary search-btn">

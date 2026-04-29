@@ -1,35 +1,46 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ContactForm from '../../components/ContactForm.astro';
-import { getCollection, render } from 'astro:content';
+import { sanityClient } from 'sanity:client';
+import { PortableText } from '@portabletext/react';
 
-export async function getStaticPaths() {
-  const allProperties = await getCollection('propiedades');
-  return allProperties.map(prop => ({
-    params: { id: prop.id },
-    props: { prop },
-  }));
+const { id } = Astro.params;
+
+const prop = await sanityClient.fetch(`*[_type == "propiedad" && _id == $id][0] {
+  _id,
+  title,
+  type,
+  operation,
+  price,
+  address,
+  bedrooms,
+  bathrooms,
+  area,
+  description,
+  "images": images[].asset->url
+}`, { id });
+
+if (!prop) {
+  return Astro.redirect('/propiedades');
 }
 
-const { prop } = Astro.props;
-const { Content } = await render(prop);
-
 const property = {
-  id: prop.id,
-  title: prop.data.title,
-  type: prop.data.type,
-  operation: prop.data.operation,
-  price: prop.data.price,
-  address: prop.data.address,
-  bedrooms: prop.data.bedrooms,
-  bathrooms: prop.data.bathrooms,
-  area: prop.data.area,
+  id: prop._id,
+  title: prop.title,
+  type: prop.type,
+  operation: prop.operation,
+  price: prop.price,
+  address: prop.address,
+  bedrooms: prop.bedrooms,
+  bathrooms: prop.bathrooms,
+  area: prop.area,
   parking: 1, // Default por ahora
   storage: 1, // Default por ahora
   expenses: "$0", // Default
-  images: prop.data.images && prop.data.images.length > 0 
-    ? prop.data.images 
-    : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200"]
+  images: prop.images && prop.images.length > 0 
+    ? prop.images 
+    : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200"],
+  description: prop.description
 };
 ---
 
@@ -117,7 +128,7 @@ const property = {
         <div class="description-section">
           <h3>Descripción</h3>
           <div class="description-content">
-            <Content />
+            {property.description ? <PortableText value={property.description} /> : <p>Sin descripción.</p>}
           </div>
         </div>
 

@@ -4,8 +4,11 @@
 <header class="header">
   <div class="container header-content">
     <a href="/" class="logo">
-      <span class="logo-text">MACG</span>
-      <span class="logo-subtext">Propiedades</span>
+      <img src="/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+      <div class="logo-text-container">
+        <span class="logo-text">MACG</span>
+        <span class="logo-subtext">Propiedades</span>
+      </div>
     </a>
     
     <button class="mobile-menu-btn" aria-label="Abrir menú" id="menuBtn">
@@ -50,8 +53,15 @@
 
   .logo {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
     text-decoration: none;
+  }
+
+  .logo-text-container {
+    display: flex;
+    flex-direction: column;
   }
 
   .logo-text {
@@ -66,6 +76,12 @@
     color: var(--color-secondary);
     letter-spacing: 1px;
     text-transform: uppercase;
+  }
+
+  .logo-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
   }
 
   .nav-links {

@@ -1,21 +1,48 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import PropertyCard from '../../components/PropertyCard.astro';
-import { getCollection } from 'astro:content';
+import { sanityClient } from 'sanity:client';
 
-const allProperties = await getCollection('propiedades');
-const properties = allProperties.map(prop => ({
-  id: prop.id,
-  title: prop.data.title,
-  type: prop.data.type,
-  operation: prop.data.operation,
-  price: prop.data.price,
-  address: prop.data.address,
-  bedrooms: prop.data.bedrooms,
-  bathrooms: prop.data.bathrooms,
-  area: prop.data.area,
-  imageUrl: (prop.data.images && prop.data.images.length > 0) ? prop.data.images[0] : "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800"
-}));
+const url = new URL(Astro.request.url);
+const searchParams = url.searchParams;
+
+const filterOp = searchParams.get('operation') || '';
+const filterType = searchParams.get('type') || '';
+const filterBeds = searchParams.get('bedrooms') || '';
+const filterLoc = searchParams.get('location') || '';
+const sortBy = searchParams.get('sort') || 'recent';
+
+let query = `*[_type == "propiedad"`;
+
+if (filterOp) query += ` && operation == "${filterOp}"`;
+if (filterType) query += ` && type == "${filterType}"`;
+if (filterLoc) query += ` && address == "${filterLoc}"`;
+if (filterBeds) {
+  const num = parseInt(filterBeds);
+  if (!isNaN(num)) query += ` && bedrooms >= ${num}`;
+}
+query += `]`;
+
+if (sortBy === 'price-asc') query += ` | order(price asc)`;
+else if (sortBy === 'price-desc') query += ` | order(price desc)`;
+else query += ` | order(_createdAt desc)`;
+
+query += ` {
+  _id,
+  title,
+  type,
+  operation,
+  price,
+  address,
+  bedrooms,
+  bathrooms,
+  area,
+  "imageUrl": images[0].asset->url
+}`;
+
+const properties = await sanityClient.fetch(query);
+const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
+const uniqueLocations = [...new Set(rawLocations)].sort();
 ---
 
 <Layout title="Catálogo de Propiedades">
@@ -30,38 +57,49 @@ const properties = allProperties.map(prop => ({
     <aside class="filters-sidebar">
       <div class="filters-card">
         <h3>Filtros de Búsqueda</h3>
-        <form id="catalogFilters" class="filters-form">
+        <form id="catalogFilters" class="filters-form" method="GET" action="/propiedades">
           <div class="filter-group">
             <label for="f-op">Operación</label>
-            <select id="f-op">
-              <option value="">Todas</option>
-              <option value="arriendo">Arriendo</option>
-              <option value="venta">Venta</option>
+            <select id="f-op" name="operation">
+              <option value="" selected={filterOp === ''}>Todas</option>
+              <option value="Arriendo" selected={filterOp === 'Arriendo'}>Arriendo</option>
+              <option value="Venta" selected={filterOp === 'Venta'}>Venta</option>
             </select>
           </div>
           
           <div class="filter-group">
             <label for="f-type">Tipo</label>
-            <select id="f-type">
-              <option value="">Todos</option>
-              <option value="departamento">Departamento</option>
-              <option value="casa">Casa</option>
-              <option value="oficina">Oficina</option>
+            <select id="f-type" name="type">
+              <option value="" selected={filterType === ''}>Todos</option>
+              <option value="Departamento" selected={filterType === 'Departamento'}>Departamento</option>
+              <option value="Casa" selected={filterType === 'Casa'}>Casa</option>
+              <option value="Oficina" selected={filterType === 'Oficina'}>Oficina</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="f-loc">Ubicación</label>
+            <select id="f-loc" name="location">
+              <option value="" selected={filterLoc === ''}>Todas</option>
+              {uniqueLocations.map((loc: string) => (
+                <option value={loc} selected={filterLoc === loc}>{loc}</option>
+              ))}
             </select>
           </div>
 
           <div class="filter-group">
             <label>Dormitorios</label>
+            <input type="hidden" name="bedrooms" id="f-beds" value={filterBeds} />
             <div class="rooms-selector">
-              <button type="button" class="room-btn active">Cualquiera</button>
-              <button type="button" class="room-btn">1+</button>
-              <button type="button" class="room-btn">2+</button>
-              <button type="button" class="room-btn">3+</button>
-              <button type="button" class="room-btn">4+</button>
+              <button type="button" class={`room-btn ${filterBeds === '' ? 'active' : ''}`} data-val="">Todos</button>
+              <button type="button" class={`room-btn ${filterBeds === '1' ? 'active' : ''}`} data-val="1">1+</button>
+              <button type="button" class={`room-btn ${filterBeds === '2' ? 'active' : ''}`} data-val="2">2+</button>
+              <button type="button" class={`room-btn ${filterBeds === '3' ? 'active' : ''}`} data-val="3">3+</button>
+              <button type="button" class={`room-btn ${filterBeds === '4' ? 'active' : ''}`} data-val="4">4+</button>
             </div>
           </div>
 
-          <button type="button" class="btn btn-primary w-full" style="margin-top: var(--space-4);">
+          <button type="submit" class="btn btn-primary w-full" style="margin-top: var(--space-4);">
             Aplicar Filtros
           </button>
         </form>
@@ -73,17 +111,28 @@ const properties = allProperties.map(prop => ({
         <p>Mostrando <strong>{properties.length}</strong> propiedades</p>
         <div class="sort-by">
           <label for="sort">Ordenar por:</label>
-          <select id="sort">
-            <option value="recent">Más recientes</option>
-            <option value="price-asc">Precio: Menor a Mayor</option>
-            <option value="price-desc">Precio: Mayor a Menor</option>
+          <select id="sort" form="catalogFilters" name="sort" onchange="document.getElementById('catalogFilters').submit()">
+            <option value="recent" selected={sortBy === 'recent'}>Más recientes</option>
+            <option value="price-asc" selected={sortBy === 'price-asc'}>Precio: Menor a Mayor</option>
+            <option value="price-desc" selected={sortBy === 'price-desc'}>Precio: Mayor a Menor</option>
           </select>
         </div>
       </div>
 
       <div class="property-grid">
-        {properties.map(prop => (
-          <PropertyCard {...prop} />
+        {properties.map((prop: any) => (
+          <PropertyCard 
+            id={prop._id}
+            title={prop.title}
+            type={prop.type}
+            operation={prop.operation}
+            price={prop.price}
+            address={prop.address}
+            bedrooms={prop.bedrooms}
+            bathrooms={prop.bathrooms}
+            area={prop.area}
+            imageUrl={prop.imageUrl || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800"}
+          />
         ))}
       </div>
     </div>
@@ -172,15 +221,14 @@ const properties = allProperties.map(prop => ({
   }
 
   .rooms-selector {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
     gap: var(--space-2);
   }
 
   .room-btn {
-    flex: 1;
-    min-width: 40px;
-    padding: var(--space-2);
+    width: 100%;
+    padding: var(--space-2) 0;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
     border-radius: var(--radius-sm);
@@ -254,3 +302,21 @@ const properties = allProperties.map(prop => ({
     width: 100%;
   }
 </style>
+
+<script>
+  // Lógica para el selector de dormitorios
+  const roomBtns = document.querySelectorAll('.room-btn');
+  const bedsInput = document.getElementById('f-beds') as HTMLInputElement;
+  const form = document.getElementById('catalogFilters') as HTMLFormElement;
+
+  roomBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Quitar active a todos
+      roomBtns.forEach(b => b.classList.remove('active'));
+      // Añadir active al clickeado
+      btn.classList.add('active');
+      // Actualizar input oculto
+      bedsInput.value = btn.getAttribute('data-val') || '';
+    });
+  });
+</script>

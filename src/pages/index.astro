@@ -2,23 +2,23 @@
 import Layout from '../layouts/Layout.astro';
 import SearchForm from '../components/SearchForm.astro';
 import PropertyCard from '../components/PropertyCard.astro';
-import { getCollection } from 'astro:content';
+import { sanityClient } from 'sanity:client';
 
-const allProperties = await getCollection('propiedades');
-const recentProperties = allProperties
-  .slice(0, 3)
-  .map(prop => ({
-    id: prop.id,
-    title: prop.data.title,
-    type: prop.data.type,
-    operation: prop.data.operation,
-    price: prop.data.price,
-    address: prop.data.address,
-    bedrooms: prop.data.bedrooms,
-    bathrooms: prop.data.bathrooms,
-    area: prop.data.area,
-    imageUrl: (prop.data.images && prop.data.images.length > 0) ? prop.data.images[0] : "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800"
-  }));
+const recentProperties = await sanityClient.fetch(`*[_type == "propiedad"] | order(_createdAt desc)[0...3] {
+  _id,
+  title,
+  type,
+  operation,
+  price,
+  address,
+  bedrooms,
+  bathrooms,
+  area,
+  "imageUrl": images[0].asset->url
+}`);
+
+const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
+const uniqueLocations = [...new Set(rawLocations)].sort();
 ---
 
 <Layout title="Inicio">
@@ -34,7 +34,7 @@ const recentProperties = allProperties
       <p class="hero-subtitle">Expertos en corretaje de propiedades y soluciones de seguros.</p>
       
       <div class="search-container">
-        <SearchForm />
+        <SearchForm locations={uniqueLocations} />
       </div>
     </div>
   </section>
@@ -46,7 +46,18 @@ const recentProperties = allProperties
     
     <div class="property-grid">
       {recentProperties.map(prop => (
-        <PropertyCard {...prop} />
+        <PropertyCard
+          id={prop._id}
+          title={prop.title}
+          type={prop.type}
+          operation={prop.operation}
+          price={prop.price}
+          address={prop.address}
+          bedrooms={prop.bedrooms}
+          bathrooms={prop.bathrooms}
+          area={prop.area}
+          imageUrl={prop.imageUrl || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800"}
+        />
       ))}
     </div>
     

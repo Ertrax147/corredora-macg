@@ -12,12 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^1.0.4",
+    "@astrojs/netlify": "^7.0.8",
     "@astrojs/react": "^5.0.4",
-    "@keystatic/astro": "^5.0.6",
-    "@keystatic/core": "^0.5.50",
+    "@portabletext/react": "^6.0.3",
+    "@sanity/astro": "^3.3.1",
+    "@sanity/client": "^7.22.0",
     "astro": "^6.1.10",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "sanity": "^5.23.0"
   }
 }
