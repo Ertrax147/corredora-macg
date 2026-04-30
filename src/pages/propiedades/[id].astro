@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import VideoEmbed from '../../components/VideoEmbed.astro';
 import { sanityClient } from 'sanity:client';
 import { PortableText } from '@portabletext/react';
 
@@ -17,6 +18,7 @@ const prop = await sanityClient.fetch(`*[_type == "propiedad" && _id == $id][0] 
   bathrooms,
   area,
   description,
+  videoUrl,
   "images": images[].asset->url
 }`, { id });
 
@@ -40,7 +42,8 @@ const property = {
   images: prop.images && prop.images.length > 0 
     ? prop.images 
     : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200"],
-  description: prop.description
+  description: prop.description,
+  videoUrl: prop.videoUrl
 };
 ---
 
@@ -131,6 +134,14 @@ const property = {
             {property.description ? <PortableText value={property.description} /> : <p>Sin descripción.</p>}
           </div>
         </div>
+
+        <!-- Video -->
+        {property.videoUrl && (
+          <div class="video-section">
+            <h3>Recorrido Virtual / Video</h3>
+            <VideoEmbed url={property.videoUrl} />
+          </div>
+        )}
 
         <!-- Map Placeholder -->
         <div class="map-section">

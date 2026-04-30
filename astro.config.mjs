@@ -18,6 +18,9 @@ export default defineConfig({
     })
   ],
   vite: {
+    server: {
+      allowedHosts: true
+    },
     optimizeDeps: {
       include: ['sanity', 'sanity/structure', 'styled-components', '@portabletext/react']
     }

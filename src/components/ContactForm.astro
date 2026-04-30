@@ -2,8 +2,8 @@
 ---
 
 <div class="contact-box">
-  <h3>¿Te interesa esta propiedad?</h3>
-  <p>Déjanos tus datos y un ejecutivo te contactará a la brevedad.</p>
+  <h3>¿Tienes dudas o te interesa una propiedad?</h3>
+  <p>Déjanos tus datos y te responderemos por WhatsApp a la brevedad.</p>
   
   <form class="contact-form" id="propertyContactForm">
     <div class="form-group">
@@ -23,19 +23,39 @@
     
     <div class="form-group">
       <label for="message">Mensaje</label>
-      <textarea id="message" rows="4" required placeholder="Me gustaría agendar una visita..."></textarea>
+      <textarea id="message" rows="4" required placeholder="Me gustaría agendar una visita / tengo una consulta..."></textarea>
     </div>
     
-    <button type="submit" class="btn btn-primary w-full">Enviar consulta</button>
+    <button type="submit" class="btn btn-primary w-full whatsapp-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+      Enviar por WhatsApp
+    </button>
   </form>
 </div>
 
 <script>
-  const form = document.getElementById('propertyContactForm');
+  const form = document.getElementById('propertyContactForm') as HTMLFormElement;
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('¡Gracias por tu mensaje! Un ejecutivo de MACG se contactará contigo muy pronto.');
+      
+      const name = (document.getElementById('name') as HTMLInputElement).value;
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const phone = (document.getElementById('phone') as HTMLInputElement).value;
+      const message = (document.getElementById('message') as HTMLTextAreaElement).value;
+      
+      const pageUrl = window.location.href;
+      
+      // Construir el mensaje
+      const wpMessage = `Hola MACG Propiedades, mi nombre es ${name}.\n\nMe contacto desde la página:\n${pageUrl}\n\nMis datos:\nEmail: ${email}\nTeléfono: ${phone}\n\nMensaje:\n${message}`;
+      
+      // Número de WhatsApp (Reemplazar con el número real de la corredora)
+      const whatsappNumber = "56912345678"; 
+      const wpUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(wpMessage)}`;
+      
+      // Abrir WhatsApp en una nueva pestaña
+      window.open(wpUrl, '_blank');
+      
       form.reset();
     });
   }
@@ -93,5 +113,19 @@
 
   .w-full {
     width: 100%;
+  }
+
+  .whatsapp-btn {
+    background-color: #25D366;
+    color: white;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .whatsapp-btn:hover {
+    background-color: #128C7E;
+    transform: translateY(-2px);
   }
 </style>

@@ -1,0 +1,48 @@
+---
+export interface Props {
+  url: string;
+}
+
+const { url } = Astro.props;
+
+let embedHtml = "";
+
+// Simple URL parsers
+const getYouTubeId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const isDrive = url.includes("drive.google.com");
+const isTikTok = url.includes("tiktok.com");
+const isInstagram = url.includes("instagram.com");
+
+if (getYouTubeId(url)) {
+  const ytId = getYouTubeId(url);
+  embedHtml = `<iframe width="100%" height="400" src="https://www.youtube.com/embed/${ytId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: var(--radius-lg);"></iframe>`;
+} else if (isDrive) {
+  // Convert drive view link to preview link
+  const previewUrl = url.replace(/\/view.*$/, "/preview");
+  embedHtml = `<iframe src="${previewUrl}" width="100%" height="400" allow="autoplay" style="border-radius: var(--radius-lg); border: none;"></iframe>`;
+} else if (isTikTok) {
+  // TikTok has oEmbed API but for simplicity we can just render a link or use an iframe if possible.
+  // Actually TikTok embed code is complex, better to link it if we don't have the script.
+  // But wait, we can just use blockquote.
+  embedHtml = `<div class="external-video-link" style="padding: 2rem; background: var(--color-surface); border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--color-border);"><p style="margin-bottom: 1rem;">Video disponible en TikTok</p><a href="${url}" target="_blank" class="btn btn-primary">Ver video en TikTok</a></div>`;
+} else if (isInstagram) {
+  embedHtml = `<div class="external-video-link" style="padding: 2rem; background: var(--color-surface); border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--color-border);"><p style="margin-bottom: 1rem;">Video disponible en Instagram</p><a href="${url}" target="_blank" class="btn btn-primary">Ver video en Instagram</a></div>`;
+} else {
+  // Generic fallback: a link
+  embedHtml = `<div class="external-video-link" style="padding: 2rem; background: var(--color-surface); border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--color-border);"><p style="margin-bottom: 1rem;">Ver recorrido virtual / video de la propiedad</p><a href="${url}" target="_blank" class="btn btn-primary">Ver Video</a></div>`;
+}
+---
+
+<div class="video-embed-container" set:html={embedHtml} />
+
+<style>
+  .video-embed-container {
+    width: 100%;
+    margin: var(--space-4) 0;
+  }
+</style>

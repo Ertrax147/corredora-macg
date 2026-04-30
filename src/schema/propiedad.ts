@@ -33,6 +33,7 @@ export const propiedad = defineType({
           { title: 'Casa', value: 'Casa' },
           { title: 'Departamento', value: 'Departamento' },
           { title: 'Oficina', value: 'Oficina' },
+          { title: 'Parcela', value: 'Parcela' },
         ],
         layout: 'radio',
       },
@@ -80,6 +81,12 @@ export const propiedad = defineType({
       title: 'Descripción Detallada',
       type: 'array',
       of: [{ type: 'block' }],
+    }),
+    defineField({
+      name: 'videoUrl',
+      title: 'Link de Video (YouTube, Instagram, TikTok, Drive, etc.)',
+      type: 'url',
+      description: 'Pega aquí el enlace de tu video. Es opcional.',
     }),
   ],
   preview: {

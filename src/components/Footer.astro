@@ -31,6 +31,18 @@ const currentYear = new Date().getFullYear();
       <p><strong>Email:</strong> contacto@macg.cl</p>
       <p><strong>Teléfono:</strong> +56 9 1234 5678</p>
       <p><strong>Dirección:</strong> Av. Providencia 1234, Santiago, Chile</p>
+      
+      <div class="social-links" style="margin-top: var(--space-4); display: flex; gap: var(--space-4);">
+        <a href="https://www.instagram.com/corredoramacg/" target="_blank" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+        <a href="https://www.facebook.com/p/Corredora-MACG-100066473784998/" target="_blank" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a href="https://www.tiktok.com/@macg.propiedades" target="_blank" aria-label="TikTok">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5v3a8 8 0 0 1-8-8h-3v11.5a1.5 1.5 0 1 1-1.5-1.5V9a4 4 0 1 0 4 4z"></path></svg>
+        </a>
+      </div>
     </div>
   </div>
   
@@ -130,5 +142,15 @@ const currentYear = new Date().getFullYear();
     text-align: center;
     color: var(--color-secondary-light);
     font-size: 0.875rem;
+  }
+
+  .social-links a {
+    color: var(--color-surface);
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .social-links a:hover {
+    color: var(--color-accent-light);
+    transform: translateY(-2px);
   }
 </style>
