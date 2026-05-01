@@ -1,26 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ContactForm from '../components/ContactForm.astro';
 
 const insurances = [
   {
     title: "Seguro de Casas",
     description: "Protege tu hogar frente a incendios, sismos, robos y otros imprevistos. Cobertura completa para tu tranquilidad y la de tu familia.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`
+    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&q=80&w=600"
   },
   {
     title: "Seguro de Autos",
-    description: "Cobertura total o por pérdida parcial, asistencia en ruta y daños a terceros. Protegemos tu vehículo donde quiera que vayas.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="10" width="20" height="10" rx="2"></rect><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"></path><circle cx="6" cy="16" r="2"></circle><circle cx="18" cy="16" r="2"></circle></svg>`
+    description: "Cobertura total o por p\u00e9rdida parcial, asistencia en ruta y da\u00f1os a terceros. Protegemos tu veh\u00edculo donde quiera que vayas.",
+    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600"
   },
   {
-    title: "Protección Pyme",
-    description: "Seguros diseñados para empresas y locales comerciales. Cobertura de responsabilidad civil, incendios y protección de inventario.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`
+    title: "Protecci\u00f3n Pyme",
+    description: "Seguros dise\u00f1ados para empresas y locales comerciales. Cobertura de responsabilidad civil, incendios y protecci\u00f3n de inventario.",
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600"
   },
   {
     title: "Vida y Salud",
-    description: "Cuidamos lo más valioso: tú y tu familia. Coberturas médicas y seguros de vida para respaldar el futuro de los que amas.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
+    description: "Cuidamos lo m\u00e1s valioso: t\u00fa y tu familia. Coberturas m\u00e9dicas y seguros de vida para respaldar el futuro de los que amas.",
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600"
   }
 ];
 ---
@@ -42,9 +43,13 @@ const insurances = [
     <div class="insurance-grid">
       {insurances.map(insurance => (
         <div class="insurance-card">
-          <div class="icon-wrapper" set:html={insurance.icon} />
-          <h3>{insurance.title}</h3>
-          <p>{insurance.description}</p>
+          <div class="card-image-wrapper">
+            <img src={insurance.image} alt={insurance.title} loading="lazy" />
+          </div>
+          <div class="card-body">
+            <h3>{insurance.title}</h3>
+            <p>{insurance.description}</p>
+          </div>
         </div>
       ))}
     </div>
@@ -54,7 +59,20 @@ const insurances = [
     <div class="container cta-content">
       <h2>¿Necesitas asesoría sobre seguros?</h2>
       <p>Nuestros ejecutivos expertos están listos para ayudarte a elegir la mejor cobertura para tu propiedad.</p>
-      <a href="#contacto" class="btn btn-primary btn-lg">Solicitar Asesoría</a>
+      <a href="#contacto" class="btn btn-primary btn-lg" id="cta-asesoria">Solicitar Asesoría</a>
+    </div>
+  </section>
+
+  <!-- Sección Contacto -->
+  <section class="contact-section" id="contacto">
+    <div class="container">
+      <div style="text-align:center; margin-bottom: var(--space-8);">
+        <h2>Contáctanos</h2>
+        <p style="color: var(--color-text-muted); font-size: 1.125rem;">Cuéntanos qué necesitas y te respondemos por WhatsApp a la brevedad.</p>
+      </div>
+      <div style="max-width: 500px; margin: 0 auto;">
+        <ContactForm />
+      </div>
     </div>
   </section>
 </Layout>
@@ -87,7 +105,8 @@ const insurances = [
   }
 
   .section {
-    padding: var(--space-16) 0;
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
   }
 
   .intro-text {
@@ -113,9 +132,9 @@ const insurances = [
     gap: var(--space-8);
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
     .insurance-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
@@ -123,9 +142,9 @@ const insurances = [
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--space-8);
-    text-align: center;
+    overflow: hidden;
     transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    text-align: left;
   }
 
   .insurance-card:hover {
@@ -133,26 +152,35 @@ const insurances = [
     box-shadow: var(--shadow-lg);
   }
 
-  .icon-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: var(--color-accent-light);
-    color: var(--color-accent);
-    margin-bottom: var(--space-6);
+  .card-image-wrapper {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+  }
+
+  .insurance-card:hover .card-image-wrapper img {
+    transform: scale(1.05);
+  }
+
+  .card-body {
+    padding: var(--space-6);
   }
 
   .insurance-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: var(--space-4);
+    font-size: 1.25rem;
+    margin-bottom: var(--space-3);
   }
 
   .insurance-card p {
     color: var(--color-text-muted);
     line-height: 1.6;
+    font-size: 0.95rem;
   }
 
   .cta-section {
@@ -180,5 +208,10 @@ const insurances = [
   .btn-lg {
     padding: var(--space-3) var(--space-8);
     font-size: 1.125rem;
+  }
+
+  .contact-section {
+    padding: var(--space-16) var(--space-4);
+    background-color: var(--color-surface);
   }
 </style>

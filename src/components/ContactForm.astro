@@ -7,22 +7,22 @@
   
   <form class="contact-form" id="propertyContactForm">
     <div class="form-group">
-      <label for="name">Nombre completo</label>
-      <input type="text" id="name" required placeholder="Ej. Juan Pérez" />
+      <label for="name">Nombre <span class="optional">(opcional)</span></label>
+      <input type="text" id="name" placeholder="Ej. Juan Pérez" />
     </div>
     
     <div class="form-group">
-      <label for="email">Correo electrónico</label>
-      <input type="email" id="email" required placeholder="juan@ejemplo.com" />
+      <label for="email">Correo electrónico <span class="optional">(opcional)</span></label>
+      <input type="email" id="email" placeholder="juan@ejemplo.com" />
     </div>
     
     <div class="form-group">
-      <label for="phone">Teléfono</label>
-      <input type="tel" id="phone" required placeholder="+56 9 1234 5678" />
+      <label for="phone">Teléfono <span class="optional">(opcional)</span></label>
+      <input type="tel" id="phone" placeholder="+56 9 1234 5678" />
     </div>
     
     <div class="form-group">
-      <label for="message">Mensaje</label>
+      <label for="message">Mensaje <span class="required-mark">*</span></label>
       <textarea id="message" rows="4" required placeholder="Me gustaría agendar una visita / tengo una consulta..."></textarea>
     </div>
     
@@ -39,23 +39,24 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       
-      const name = (document.getElementById('name') as HTMLInputElement).value;
-      const email = (document.getElementById('email') as HTMLInputElement).value;
-      const phone = (document.getElementById('phone') as HTMLInputElement).value;
-      const message = (document.getElementById('message') as HTMLTextAreaElement).value;
+      const name = (document.getElementById('name') as HTMLInputElement).value.trim();
+      const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+      const phone = (document.getElementById('phone') as HTMLInputElement).value.trim();
+      const message = (document.getElementById('message') as HTMLTextAreaElement).value.trim();
       
       const pageUrl = window.location.href;
       
-      // Construir el mensaje
-      const wpMessage = `Hola MACG Propiedades, mi nombre es ${name}.\n\nMe contacto desde la página:\n${pageUrl}\n\nMis datos:\nEmail: ${email}\nTeléfono: ${phone}\n\nMensaje:\n${message}`;
+      // Construir el mensaje solo con los campos que se completaron
+      let wpMessage = `Hola MACG Propiedades!\n\nMe contacto desde:\n${pageUrl}\n\n`;
+      if (name)  wpMessage += `Nombre: ${name}\n`;
+      if (email) wpMessage += `Email: ${email}\n`;
+      if (phone) wpMessage += `Teléfono: ${phone}\n`;
+      wpMessage += `\nMensaje:\n${message}`;
       
-      // Número de WhatsApp
       const whatsappNumber = "56945745838"; 
       const wpUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(wpMessage)}`;
       
-      // Abrir WhatsApp en una nueva pestaña
       window.open(wpUrl, '_blank');
-      
       form.reset();
     });
   }
@@ -95,6 +96,16 @@
     color: var(--color-text-main);
   }
 
+  .optional {
+    font-weight: 400;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+
+  .required-mark {
+    color: var(--color-accent);
+  }
+
   input, textarea {
     width: 100%;
     padding: var(--space-3);
@@ -116,8 +127,6 @@
   }
 
   .whatsapp-btn {
-    background-color: #25D366;
-    color: white;
     border: none;
     display: flex;
     justify-content: center;
@@ -125,7 +134,6 @@
   }
 
   .whatsapp-btn:hover {
-    background-color: #128C7E;
     transform: translateY(-2px);
   }
 </style>

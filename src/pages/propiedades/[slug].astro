@@ -117,8 +117,8 @@ const property = {
             <div class="gallery-counter" id="galleryCounter">1 / {property.images.length}</div>
           </div>
 
-          <!-- Thumbnails: fotos + miniatura de video si existe -->
-          <div class="thumbnail-grid">
+          <!-- Thumbnails: fila scrolleable horizontal -->
+          <div class="thumbnail-row">
             {property.images.map((img: string, index: number) => (
               <img
                 src={img}
@@ -144,63 +144,52 @@ const property = {
         </div>
 
         <script>
-          const allThumbs = document.querySelectorAll('.thumbnail');
-          const imageThumbs = document.querySelectorAll('.thumbnail[data-type="image"]') as NodeListOf<HTMLElement>;
-          const mainImage = document.getElementById('main-gallery-image') as HTMLImageElement | null;
-          const mainVideo = document.getElementById('main-gallery-video') as HTMLElement | null;
-          const prevBtn = document.getElementById('galleryPrev') as HTMLButtonElement | null;
-          const nextBtn = document.getElementById('galleryNext') as HTMLButtonElement | null;
-          const counter = document.getElementById('galleryCounter') as HTMLElement | null;
+          const allThumbs  = Array.from(document.querySelectorAll('.thumbnail')) as HTMLElement[];
+          const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
+          const mainImage  = document.getElementById('main-gallery-image') as HTMLImageElement | null;
+          const mainVideo  = document.getElementById('main-gallery-video') as HTMLElement | null;
+          const prevBtn    = document.getElementById('galleryPrev') as HTMLButtonElement | null;
+          const nextBtn    = document.getElementById('galleryNext') as HTMLButtonElement | null;
+          const counter    = document.getElementById('galleryCounter') as HTMLElement | null;
 
           let currentIndex = 0;
-          let showingVideo = false;
 
           function goToImage(index: number) {
-            if (imageThumbs.length === 0) return;
-            currentIndex = (index + imageThumbs.length) % imageThumbs.length;
+            if (!imageThumbs.length) return;
+            currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
             const target = imageThumbs[currentIndex];
-            const newSrc = target.getAttribute('data-image');
 
-            if (mainImage && newSrc) {
-              mainImage.setAttribute('src', newSrc);
-              mainImage.style.display = 'block';
-            }
+            if (mainImage) { mainImage.src = target.dataset.image!; mainImage.style.display = 'block'; }
             if (mainVideo) mainVideo.style.display = 'none';
-            showingVideo = false;
 
             allThumbs.forEach(t => t.classList.remove('active'));
             target.classList.add('active');
+            target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
-            if (counter) counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`;
+            if (counter) { counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; counter.style.display = 'block'; }
             if (prevBtn) prevBtn.style.display = 'flex';
             if (nextBtn) nextBtn.style.display = 'flex';
           }
 
           allThumbs.forEach(thumb => {
-            thumb.addEventListener('click', (e) => {
-              const target = e.currentTarget as HTMLElement;
-              const type = target.getAttribute('data-type');
-
+            thumb.addEventListener('click', () => {
               allThumbs.forEach(t => t.classList.remove('active'));
-              target.classList.add('active');
+              thumb.classList.add('active');
 
-              if (type === 'video') {
+              if (thumb.dataset.type === 'video') {
                 if (mainImage) mainImage.style.display = 'none';
                 if (mainVideo) mainVideo.style.display = 'block';
                 if (prevBtn) prevBtn.style.display = 'none';
                 if (nextBtn) nextBtn.style.display = 'none';
                 if (counter) counter.style.display = 'none';
-                showingVideo = true;
               } else {
-                const idx = parseInt(target.getAttribute('data-index') || '0');
-                goToImage(idx);
-                if (counter) counter.style.display = 'block';
+                goToImage(parseInt(thumb.dataset.index || '0'));
               }
             });
           });
 
-          if (prevBtn) prevBtn.addEventListener('click', () => goToImage(currentIndex - 1));
-          if (nextBtn) nextBtn.addEventListener('click', () => goToImage(currentIndex + 1));
+          prevBtn?.addEventListener('click', () => goToImage(currentIndex - 1));
+          nextBtn?.addEventListener('click', () => goToImage(currentIndex + 1));
         </script>
 
         <!-- Key Features -->
@@ -411,19 +400,42 @@ const property = {
     backdrop-filter: blur(4px);
   }
 
-  .thumbnail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--space-4);
+  /* ── Thumbnail row ── */
+  .thumbnail-row {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-2); /* espacio para scrollbar en desktop */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
   }
 
   .thumbnail {
-    width: 100%;
+    flex: 0 0 22%;   /* ~4 visibles en desktop */
+    min-width: 80px;
     aspect-ratio: 4/3;
     object-fit: cover;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: opacity var(--transition-fast);
+    scroll-snap-align: start;
+    transition: opacity var(--transition-fast), outline var(--transition-fast);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .thumbnail {
+      flex: 0 0 38%; /* ~2.5 visibles en móvil */
+    }
+  }
+
+  .thumbnail:hover { opacity: 0.8; }
+
+  .thumbnail.active {
+    outline-color: var(--color-accent);
+    opacity: 1;
   }
 
   .video-thumbnail {
@@ -431,7 +443,20 @@ const property = {
     overflow: hidden;
     border-radius: var(--radius-md);
     cursor: pointer;
+    flex: 0 0 22%;
+    min-width: 80px;
+    aspect-ratio: 4/3;
+    scroll-snap-align: start;
     transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  @media (max-width: 600px) {
+    .video-thumbnail { flex: 0 0 38%; }
+  }
+
+  .video-thumbnail.active {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   .video-thumb-img {
@@ -457,28 +482,8 @@ const property = {
     transition: background var(--transition-fast);
   }
 
-  .video-thumbnail:hover .video-play-overlay {
-    background: rgba(0, 0, 0, 0.35);
-  }
-
-  .video-thumbnail:hover {
-    opacity: 0.9;
-    transform: scale(1.03);
-  }
-
-  .video-thumbnail.active {
-    border: 3px solid var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-accent);
-  }
-
-  .thumbnail:hover {
-    opacity: 0.8;
-  }
-
-  .thumbnail.active {
-    border: 3px solid var(--color-primary);
-    opacity: 1;
-  }
+  .video-thumbnail:hover .video-play-overlay { background: rgba(0, 0, 0, 0.35); }
+  .video-thumbnail:hover { opacity: 0.9; transform: scale(1.03); }
 
   .features-grid {
     display: grid;

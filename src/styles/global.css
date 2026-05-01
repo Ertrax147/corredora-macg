@@ -108,7 +108,18 @@ a {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-5); /* 20px lateral en móvil */
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--space-8); /* 32px lateral en tablet/desktop */
+  }
+}
+
+/* Compensar el header fijo al navegar a anchors (#id) */
+[id] {
+  scroll-margin-top: 90px;
 }
 
 .btn {
