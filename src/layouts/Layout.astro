@@ -6,9 +6,16 @@ import Footer from '../components/Footer.astro';
 interface Props {
 	title: string;
 	description?: string;
+	image?: string;
 }
 
-const { title, description = "MACG Propiedades - Arriendo, Venta y Seguros" } = Astro.props;
+const { 
+	title, 
+	description = "MACG Propiedades - Expertos en corretaje de propiedades y soluciones de seguros en Villarrica y alrededores.",
+	image = "/logo.jpeg"
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url);
 ---
 
 <!doctype html>
@@ -20,6 +27,20 @@ const { title, description = "MACG Propiedades - Arriendo, Venta y Seguros" } = 
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} | MACG</title>
+
+		<!-- Open Graph / Facebook / WhatsApp -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={`${title} | MACG`} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={new URL(image, Astro.url)} />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={canonicalURL} />
+		<meta property="twitter:title" content={`${title} | MACG`} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={new URL(image, Astro.url)} />
 	</head>
 	<body>
 		<Header />

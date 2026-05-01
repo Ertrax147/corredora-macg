@@ -1,6 +1,6 @@
 ---
 interface Props {
-  id: string;
+  slug: string;
   title: string;
   type: string;
   operation: 'Arriendo' | 'Venta';
@@ -12,11 +12,11 @@ interface Props {
   imageUrl: string;
 }
 
-const { id, title, type, operation, price, address, bedrooms, bathrooms, area, imageUrl } = Astro.props;
+const { slug, title, type, operation, price, address, bedrooms, bathrooms, area, imageUrl } = Astro.props;
 ---
 
 <article class="property-card">
-  <a href={`/propiedades/${id}`} class="card-link">
+  <a href={`/propiedades/${slug}`} class="card-link">
     <div class="card-image-wrapper">
       <img src={imageUrl} alt={title} class="card-image" loading="lazy" />
       <div class="badges">

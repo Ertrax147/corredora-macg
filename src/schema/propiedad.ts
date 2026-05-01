@@ -12,6 +12,16 @@ export const propiedad = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'URL Amigable (Slug)',
+      type: 'slug',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'operation',
       title: 'Operación',
       type: 'string',
@@ -60,6 +70,18 @@ export const propiedad = defineType({
     defineField({
       name: 'bathrooms',
       title: 'Baños',
+      type: 'number',
+      validation: (Rule) => Rule.min(0).integer(),
+    }),
+    defineField({
+      name: 'parking',
+      title: 'Estacionamientos',
+      type: 'number',
+      validation: (Rule) => Rule.min(0).integer(),
+    }),
+    defineField({
+      name: 'storage',
+      title: 'Bodegas',
       type: 'number',
       validation: (Rule) => Rule.min(0).integer(),
     }),

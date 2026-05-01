@@ -28,7 +28,7 @@ else if (sortBy === 'price-desc') query += ` | order(price desc)`;
 else query += ` | order(_createdAt desc)`;
 
 query += ` {
-  _id,
+  "slug": slug.current,
   title,
   type,
   operation,
@@ -40,7 +40,25 @@ query += ` {
   "imageUrl": images[0].asset->url
 }`;
 
-const properties = await sanityClient.fetch(query);
+interface Propiedad {
+  slug: string;
+  title: string;
+  type: string;
+  operation: 'Arriendo' | 'Venta';
+  price: string;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  imageUrl: string | null;
+}
+
+const propertiesRaw = await sanityClient.fetch<Propiedad[]>(query);
+const properties = propertiesRaw.map(prop => ({
+  ...prop,
+  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=800&q=80` : null
+}));
+
 const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
 const uniqueLocations = [...new Set(rawLocations)].sort();
 ---
@@ -121,9 +139,9 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
       </div>
 
       <div class="property-grid">
-        {properties.map((prop: any) => (
+        {properties.map((prop) => (
           <PropertyCard 
-            id={prop._id}
+            slug={prop.slug}
             title={prop.title}
             type={prop.type}
             operation={prop.operation}

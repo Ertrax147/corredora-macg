@@ -5,8 +5,21 @@ import PropertyCard from '../components/PropertyCard.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { sanityClient } from 'sanity:client';
 
-const recentProperties = await sanityClient.fetch(`*[_type == "propiedad"] | order(_createdAt desc)[0...3] {
-  _id,
+interface Propiedad {
+  slug: string;
+  title: string;
+  type: string;
+  operation: 'Arriendo' | 'Venta';
+  price: string;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  imageUrl: string | null;
+}
+
+const recentPropertiesRaw = await sanityClient.fetch<Propiedad[]>(`*[_type == "propiedad"] | order(_createdAt desc)[0...3] {
+  "slug": slug.current,
   title,
   type,
   operation,
@@ -17,6 +30,12 @@ const recentProperties = await sanityClient.fetch(`*[_type == "propiedad"] | ord
   area,
   "imageUrl": images[0].asset->url
 }`);
+
+// Optimizar imágenes
+const recentProperties = recentPropertiesRaw.map(prop => ({
+  ...prop,
+  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=800&q=80` : null
+}));
 
 const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
 const uniqueLocations = [...new Set(rawLocations)].sort();
@@ -48,7 +67,7 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
     <div class="property-grid">
       {recentProperties.map(prop => (
         <PropertyCard
-          id={prop._id}
+          slug={prop.slug}
           title={prop.title}
           type={prop.type}
           operation={prop.operation}

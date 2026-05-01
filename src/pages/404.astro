@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Página no encontrada">
+  <div class="container not-found">
+    <h1>404</h1>
+    <h2>¡Ups! Página no encontrada</h2>
+    <p>La propiedad o página que buscas no existe, fue eliminada o movida.</p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Volver al Inicio</a>
+      <a href="/propiedades" class="btn btn-outline" style="margin-left: var(--space-4);">Ver Catálogo</a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .not-found {
+    text-align: center;
+    padding: var(--space-20) var(--space-4);
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .not-found h1 {
+    font-size: 8rem;
+    color: var(--color-primary);
+    margin-bottom: 0;
+    line-height: 1;
+    text-shadow: 4px 4px 0px var(--color-accent-light);
+  }
+  
+  .not-found h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+    color: var(--color-text-main);
+  }
+  
+  .not-found p {
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    margin-bottom: var(--space-8);
+    max-width: 500px;
+  }
+  
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  
+  @media (max-width: 480px) {
+    .actions {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .actions .btn {
+      width: 100%;
+      margin-left: 0 !important;
+    }
+  }
+</style>
