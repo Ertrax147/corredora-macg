@@ -23,7 +23,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url);
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} | MACG</title>
@@ -44,7 +44,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url);
 	</head>
 	<body>
 		<Header />
-		<main>
+		<main class="main-content">
 			<slot />
 		</main>
 		<Footer />
@@ -52,7 +52,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url);
 </html>
 
 <style>
-	main {
+	.main-content {
 		flex: 1;
+		overflow-x: hidden; /* Contains any overflowing elements like the gallery or cards */
+		width: 100%;
 	}
 </style>

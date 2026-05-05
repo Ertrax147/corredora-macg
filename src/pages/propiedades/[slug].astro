@@ -97,9 +97,10 @@ const property = {
     </div>
 
     <div class="main-content">
-      <div class="property-info">
-        <!-- Gallery -->
-        <div class="gallery">
+      <div class="property-grid">
+        <div class="property-info">
+          <!-- Gallery -->
+          <div class="gallery">
           <!-- Main display: image or video -->
           <div class="main-display-wrapper">
             <img src={property.images[0]} alt={property.title} class="main-image" id="main-gallery-image" />
@@ -235,7 +236,9 @@ const property = {
 
 <style>
   .property-detail-container {
-    padding: var(--space-8) var(--space-4);
+    padding: var(--space-6) var(--space-4);
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .back-link {
@@ -330,20 +333,23 @@ const property = {
     margin-top: var(--space-1);
   }
 
-  .main-content {
+  .property-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-8);
+    width: 100%;
   }
 
   @media (min-width: 1024px) {
-    .main-content {
+    .property-grid {
       grid-template-columns: 2fr 1fr;
     }
   }
 
   .gallery {
     margin-bottom: var(--space-8);
+    width: 100%;
+    max-width: 100%;
   }
 
   .main-display-wrapper {
@@ -351,13 +357,17 @@ const property = {
     margin-bottom: var(--space-4);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    background-color: var(--color-background);
   }
 
   .main-image {
     width: 100%;
-    aspect-ratio: 16/9;
+    height: auto;
+    min-height: 300px;
+    max-height: 450px;
     object-fit: cover;
     display: block;
+    cursor: zoom-in;
   }
 
   .gallery-arrow {
@@ -368,8 +378,8 @@ const property = {
     color: white;
     border: none;
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -410,6 +420,7 @@ const property = {
     padding-bottom: var(--space-2); /* espacio para scrollbar en desktop */
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
+    max-width: 100%;
   }
 
   .thumbnail {

@@ -70,12 +70,18 @@ html {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  padding-top: 80px; /* Space for the fixed header */
 }
 
 img, picture, video, canvas, svg {
@@ -105,10 +111,11 @@ a {
 
 /* Utility Classes */
 .container {
-  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-5); /* 20px lateral en móvil */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
 }
 
 @media (min-width: 768px) {
