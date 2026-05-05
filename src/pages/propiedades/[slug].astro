@@ -116,6 +116,10 @@ const property = {
             </button>
             <!-- Contador de fotos -->
             <div class="gallery-counter" id="galleryCounter">1 / {property.images.length}</div>
+            <!-- Botón pantalla completa -->
+            <button class="fullscreen-btn" id="openLightbox" aria-label="Ver en pantalla completa">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+            </button>
           </div>
 
           <!-- Thumbnails: fila scrolleable horizontal -->
@@ -144,6 +148,12 @@ const property = {
           </div>
         </div>
 
+        <!-- Lightbox / Pantalla Completa -->
+        <div id="lightbox" class="lightbox">
+          <button class="lightbox-close" id="closeLightbox">&times;</button>
+          <img id="lightboxImage" src="" alt="Vista ampliada" />
+        </div>
+
         <script>
           const allThumbs  = Array.from(document.querySelectorAll('.thumbnail')) as HTMLElement[];
           const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
@@ -155,54 +165,86 @@ const property = {
 
           let currentIndex = 0;
 
-          function goToImage(index: number) {
-            if (!imageThumbs.length) return;
-            currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
-            const target = imageThumbs[currentIndex];
+          function goToMedia(index: number) {
+            if (!allThumbs.length) return;
+            currentIndex = ((index % allThumbs.length) + allThumbs.length) % allThumbs.length;
+            const target = allThumbs[currentIndex];
             const row = target.parentElement;
-
-            if (mainImage) { 
-              mainImage.src = target.dataset.image!; 
-              mainImage.style.display = 'block'; 
-            }
-            if (mainVideo) mainVideo.style.display = 'none';
 
             allThumbs.forEach(t => t.classList.remove('active'));
             target.classList.add('active');
+
+            if (target.dataset.type === 'video') {
+              // Mostrar video, ocultar imagen
+              if (mainImage) mainImage.style.display = 'none';
+              if (mainVideo) mainVideo.style.display = 'block';
+              if (counter) counter.style.display = 'none';
+              // En video podemos elegir ocultar flechas o dejarlas para salir del video
+              if (prevBtn) prevBtn.style.display = 'flex';
+              if (nextBtn) nextBtn.style.display = 'flex';
+            } else {
+              // Mostrar imagen, ocultar video
+              if (mainImage) { 
+                mainImage.src = target.dataset.image!; 
+                mainImage.style.display = 'block'; 
+              }
+              if (mainVideo) mainVideo.style.display = 'none';
+              
+              if (counter) { 
+                // Buscamos el índice real de la imagen entre las imágenes para el contador
+                const imgIndex = imageThumbs.indexOf(target);
+                counter.textContent = `${imgIndex + 1} / ${imageThumbs.length}`; 
+                counter.style.display = 'block'; 
+              }
+              if (prevBtn) prevBtn.style.display = 'flex';
+              if (nextBtn) nextBtn.style.display = 'flex';
+            }
             
-            // Scroll manual de la fila para evitar que toda la página se desplace
+            // Scroll manual de la fila
             if (row) {
               const scrollTarget = target.offsetLeft - (row.clientWidth / 2) + (target.clientWidth / 2);
               row.scrollTo({ left: scrollTarget, behavior: 'smooth' });
             }
-
-            if (counter) { 
-              counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; 
-              counter.style.display = 'block'; 
-            }
-            if (prevBtn) prevBtn.style.display = 'flex';
-            if (nextBtn) nextBtn.style.display = 'flex';
           }
 
-          allThumbs.forEach(thumb => {
-            thumb.addEventListener('click', () => {
-              allThumbs.forEach(t => t.classList.remove('active'));
-              thumb.classList.add('active');
-
-              if (thumb.dataset.type === 'video') {
-                if (mainImage) mainImage.style.display = 'none';
-                if (mainVideo) mainVideo.style.display = 'block';
-                if (prevBtn) prevBtn.style.display = 'none';
-                if (nextBtn) nextBtn.style.display = 'none';
-                if (counter) counter.style.display = 'none';
-              } else {
-                goToImage(parseInt(thumb.dataset.index || '0'));
-              }
-            });
+          allThumbs.forEach((thumb, index) => {
+            thumb.addEventListener('click', () => goToMedia(index));
           });
 
-          prevBtn?.addEventListener('click', () => goToImage(currentIndex - 1));
-          nextBtn?.addEventListener('click', () => goToImage(currentIndex + 1));
+          prevBtn?.addEventListener('click', () => goToMedia(currentIndex - 1));
+          nextBtn?.addEventListener('click', () => goToMedia(currentIndex + 1));
+
+          // Lightbox Logic
+          const lightbox = document.getElementById('lightbox');
+          const lightboxImg = document.getElementById('lightboxImage') as HTMLImageElement;
+          const openLightboxBtn = document.getElementById('openLightbox');
+          const closeLightboxBtn = document.getElementById('closeLightbox');
+
+          function openLightbox() {
+            if (mainImage && lightbox && lightboxImg) {
+              lightboxImg.src = mainImage.src;
+              lightbox.classList.add('active');
+              document.body.style.overflow = 'hidden'; // Bloquea scroll fondo
+            }
+          }
+
+          function closeLightbox() {
+            if (lightbox) {
+              lightbox.classList.remove('active');
+              document.body.style.overflow = ''; // Restaura scroll
+            }
+          }
+
+          openLightboxBtn?.addEventListener('click', openLightbox);
+          mainImage?.addEventListener('click', openLightbox);
+          closeLightboxBtn?.addEventListener('click', closeLightbox);
+          lightbox?.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+          });
+
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+          });
         </script>
 
         <!-- Key Features -->
@@ -249,8 +291,7 @@ const property = {
 <style>
   .property-detail-container {
     padding: var(--space-6) var(--space-4);
-    max-width: 100%;
-    overflow-x: hidden;
+    /* margin: auto y max-width: 1200px vienen de la clase .container */
   }
 
   .back-link {
@@ -268,6 +309,46 @@ const property = {
 
   .detail-header {
     margin-bottom: var(--space-8);
+  }
+
+  /* Lightbox Styles */
+  .lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+  }
+
+  .lightbox.active {
+    display: flex;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    background: none;
+    border: none;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: var(--space-2);
   }
 
   .header-content {
@@ -414,15 +495,39 @@ const property = {
 
   .gallery-counter {
     position: absolute;
-    bottom: var(--space-3);
-    right: var(--space-3);
-    background: rgba(0, 0, 0, 0.5);
+    bottom: var(--space-4);
+    right: var(--space-4);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
-    font-size: 0.8rem;
-    font-weight: 600;
     padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
     backdrop-filter: blur(4px);
+    z-index: 10;
+  }
+
+  .fullscreen-btn {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    transition: background var(--transition-fast);
+  }
+
+  .fullscreen-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
   }
 
   /* ── Thumbnail row ── */
