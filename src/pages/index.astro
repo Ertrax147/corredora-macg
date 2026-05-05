@@ -34,7 +34,7 @@ const recentPropertiesRaw = await sanityClient.fetch<Propiedad[]>(`*[_type == "p
 // Optimizar imágenes
 const recentProperties = recentPropertiesRaw.map(prop => ({
   ...prop,
-  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=800&q=80` : null
+  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=600&q=75` : null
 }));
 
 const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
@@ -45,9 +45,15 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-bg">
-      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000" alt="MACG Propiedades Hero" />
+      <img 
+        src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1200" 
+        alt="MACG Propiedades Hero" 
+        loading="eager"
+        fetchpriority="high"
+      />
       <div class="hero-overlay"></div>
     </div>
+
     
     <div class="container hero-content">
       <h1 class="hero-title">Encuentra tu próximo hogar con MACG</h1>

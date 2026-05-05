@@ -1,16 +1,18 @@
 ---
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo.jpeg';
 ---
 
 <header class="header">
   <div class="header-content">
     <a href="/" class="logo">
-      <img src="/logo.jpeg" alt="Logo" class="logo-img" width="180" height="110" />
-
+      <Image src={logoImg} alt="Logo" class="logo-img" width={180} height={110} loading="eager" />
       <div class="logo-text-container">
         <span class="logo-text">MACG</span>
         <span class="logo-subtext">Propiedades</span>
       </div>
     </a>
+
     
     <button class="mobile-menu-btn" aria-label="Abrir menú" id="menuBtn">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>

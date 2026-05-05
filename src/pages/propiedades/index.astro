@@ -56,7 +56,7 @@ interface Propiedad {
 const propertiesRaw = await sanityClient.fetch<Propiedad[]>(query);
 const properties = propertiesRaw.map(prop => ({
   ...prop,
-  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=800&q=80` : null
+  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=600&q=75` : null
 }));
 
 const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
