@@ -84,9 +84,15 @@ body {
   padding-top: 80px; /* Space for the fixed header */
 }
 
+/* Previene que elementos flexibles o de grid desborden su contenedor */
+* {
+  min-width: 0;
+}
+
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
+  height: auto;
 }
 
 input, button, textarea, select {

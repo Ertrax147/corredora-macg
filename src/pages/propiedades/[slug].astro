@@ -98,7 +98,7 @@ const property = {
 
     <div class="main-content">
       <div class="property-grid">
-        <div class="property-info">
+        <div class="property-info" style="min-width: 0;">
           <!-- Gallery -->
           <div class="gallery">
           <!-- Main display: image or video -->
@@ -159,15 +159,27 @@ const property = {
             if (!imageThumbs.length) return;
             currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
             const target = imageThumbs[currentIndex];
+            const row = target.parentElement;
 
-            if (mainImage) { mainImage.src = target.dataset.image!; mainImage.style.display = 'block'; }
+            if (mainImage) { 
+              mainImage.src = target.dataset.image!; 
+              mainImage.style.display = 'block'; 
+            }
             if (mainVideo) mainVideo.style.display = 'none';
 
             allThumbs.forEach(t => t.classList.remove('active'));
             target.classList.add('active');
-            target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            
+            // Scroll manual de la fila para evitar que toda la página se desplace
+            if (row) {
+              const scrollTarget = target.offsetLeft - (row.clientWidth / 2) + (target.clientWidth / 2);
+              row.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+            }
 
-            if (counter) { counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; counter.style.display = 'block'; }
+            if (counter) { 
+              counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; 
+              counter.style.display = 'block'; 
+            }
             if (prevBtn) prevBtn.style.display = 'flex';
             if (nextBtn) nextBtn.style.display = 'flex';
           }
@@ -335,14 +347,14 @@ const property = {
 
   .property-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-8);
     width: 100%;
   }
 
   @media (min-width: 1024px) {
     .property-grid {
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     }
   }
 
@@ -350,6 +362,7 @@ const property = {
     margin-bottom: var(--space-8);
     width: 100%;
     max-width: 100%;
+    overflow: visible; /* Las flechas están posicionadas relativamente a esto */
   }
 
   .main-display-wrapper {
@@ -358,14 +371,16 @@ const property = {
     border-radius: var(--radius-lg);
     overflow: hidden;
     background-color: var(--color-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .main-image {
     width: 100%;
     height: auto;
-    min-height: 300px;
-    max-height: 450px;
-    object-fit: cover;
+    max-height: 500px;
+    object-fit: contain;
     display: block;
     cursor: zoom-in;
   }
