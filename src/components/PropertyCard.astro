@@ -74,8 +74,14 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
 
   .card-image-wrapper {
     position: relative;
-    aspect-ratio: 4/3;
+    aspect-ratio: 16/9; /* Más panorámico en móvil */
     overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .card-image-wrapper {
+      aspect-ratio: 4/3;
+    }
   }
 
   .card-image {
@@ -120,14 +126,29 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
   }
 
   .card-content {
-    padding: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .card-content {
+      padding: var(--space-5);
+    }
   }
 
   .card-price {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--color-primary);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
+    font-weight: 700;
   }
+
+  @media (min-width: 768px) {
+    .card-price {
+      font-size: 1.5rem;
+      margin-bottom: var(--space-2);
+    }
+  }
+
 
   .card-title {
     font-size: 1.125rem;

@@ -179,9 +179,11 @@ const property = {
               if (mainImage) mainImage.style.display = 'none';
               if (mainVideo) mainVideo.style.display = 'block';
               if (counter) counter.style.display = 'none';
+              if (openLightboxBtn) openLightboxBtn.style.display = 'none';
               // En video podemos elegir ocultar flechas o dejarlas para salir del video
               if (prevBtn) prevBtn.style.display = 'flex';
               if (nextBtn) nextBtn.style.display = 'flex';
+
             } else {
               // Mostrar imagen, ocultar video
               if (mainImage) { 
@@ -189,6 +191,7 @@ const property = {
                 mainImage.style.display = 'block'; 
               }
               if (mainVideo) mainVideo.style.display = 'none';
+              if (openLightboxBtn) openLightboxBtn.style.display = 'flex';
               
               if (counter) { 
                 // Buscamos el índice real de la imagen entre las imágenes para el contador
@@ -236,7 +239,6 @@ const property = {
           }
 
           openLightboxBtn?.addEventListener('click', openLightbox);
-          mainImage?.addEventListener('click', openLightbox);
           closeLightboxBtn?.addEventListener('click', closeLightbox);
           lightbox?.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
@@ -457,13 +459,25 @@ const property = {
     justify-content: center;
   }
 
+  #main-gallery-video {
+    width: 100%;
+    /* Dejamos que el iframe dentro de VideoEmbed maneje su propia altura y proporción */
+    border-radius: var(--radius-md);
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px; /* Aseguramos espacio para los controles de Drive */
+    overflow: visible;
+  }
+
+
   .main-image {
     width: 100%;
     height: auto;
     max-height: 500px;
     object-fit: contain;
     display: block;
-    cursor: zoom-in;
   }
 
   .gallery-arrow {

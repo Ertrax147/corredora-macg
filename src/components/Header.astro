@@ -4,7 +4,8 @@
 <header class="header">
   <div class="header-content">
     <a href="/" class="logo">
-      <img src="/logo.jpeg" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+      <img src="/logo.jpeg" alt="Logo" class="logo-img" width="180" height="110" />
+
       <div class="logo-text-container">
         <span class="logo-text">MACG</span>
         <span class="logo-subtext">Propiedades</span>
@@ -19,7 +20,7 @@
       <a href="/" class="nav-link">Inicio</a>
       <a href="/propiedades" class="nav-link">Propiedades</a>
       <a href="/seguros" class="nav-link">Seguros</a>
-      <a href="#contacto" class="btn btn-primary">Contáctanos</a>
+      <a href="/#contacto" class="btn btn-primary">Contáctanos</a>
     </nav>
   </div>
 </header>
@@ -36,7 +37,18 @@
 
     // Cerrar menú al hacer clic en cualquier enlace (útil en móvil)
     navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        
+        // Lógica inteligente para el botón de contacto
+        if (href === '/#contacto' || href === '#contacto') {
+          const contactSection = document.getElementById('contacto');
+          if (contactSection) {
+            e.preventDefault();
+            contactSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+        
         navLinks.classList.remove('active');
       });
     });
