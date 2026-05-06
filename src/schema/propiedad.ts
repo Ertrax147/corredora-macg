@@ -16,10 +16,33 @@ export const propiedad = defineType({
       title: 'URL Amigable (Slug)',
       type: 'slug',
       options: {
-        source: 'title',
+        source: (doc) => {
+          const type = doc.type ? doc.type.toString().toLowerCase() : 'propiedad';
+          const op = doc.operation ? doc.operation.toString().toLowerCase() : 'venta';
+          const address = doc.address ? doc.address.toString() : '';
+          
+          const beds = doc.bedrooms ? `-${doc.bedrooms}-hab` : '';
+          const baths = doc.bathrooms ? `-${doc.bathrooms}-banos` : '';
+          
+          // Genera un código aleatorio corto (ej. a7f2) para garantizar que NUNCA se repita
+          const uniqueSuffix = Math.random().toString(36).substring(2, 6);
+          
+          if (address) {
+            return `${op}-${type}-en-${address}${beds}${baths}-${uniqueSuffix}`;
+          }
+          return `${doc.title || 'propiedad'}-${uniqueSuffix}`;
+        },
         maxLength: 96,
+        slugify: input => input
+          .toLowerCase()
+          .normalize('NFD') // Normaliza para separar caracteres de sus tildes/acentos
+          .replace(/[\u0300-\u036f]/g, '') // Elimina las tildes
+          .replace(/\s+/g, '-') // Cambia espacios por guiones
+          .replace(/[^\w\-]+/g, '') // Elimina caracteres especiales
+          .slice(0, 96)
       },
       validation: (Rule) => Rule.required(),
+      description: 'Haz clic en "Generate" para crear un link automático optimizado para Google (ej. venta-casa-en-pucon), o escríbelo manualmente.',
     }),
     defineField({
       name: 'operation',

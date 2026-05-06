@@ -3,58 +3,71 @@ import { Image } from 'astro:assets';
 import logoImg from '../assets/logo.jpeg';
 ---
 
-<header class="header">
-  <div class="header-content">
-    <a href="/" class="logo">
-      <Image src={logoImg} alt="Logo" class="logo-img" width={180} height={110} loading="eager" />
-      <div class="logo-text-container">
-        <span class="logo-text">MACG</span>
-        <span class="logo-subtext">Propiedades</span>
-      </div>
-    </a>
+<header-menu>
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <Image src={logoImg} alt="Logo" class="logo-img" width={180} height={110} loading="eager" />
+        <div class="logo-text-container">
+          <span class="logo-text">MACG</span>
+          <span class="logo-subtext">Propiedades</span>
+        </div>
+      </a>
 
-    
-    <button class="mobile-menu-btn" aria-label="Abrir menú" id="menuBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-    </button>
+      
+      <button class="mobile-menu-btn" aria-label="Abrir menú">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      </button>
 
-    <nav class="nav-links" id="navLinks">
-      <a href="/" class="nav-link">Inicio</a>
-      <a href="/propiedades" class="nav-link">Propiedades</a>
-      <a href="/seguros" class="nav-link">Seguros</a>
-      <a href="/#contacto" class="btn btn-primary">Contáctanos</a>
-    </nav>
-  </div>
-</header>
+      <nav class="nav-links">
+        <a href="/" class="nav-link">Inicio</a>
+        <a href="/propiedades" class="nav-link">Propiedades</a>
+        <a href="/seguros" class="nav-link">Seguros</a>
+        <a href="/#contacto" class="btn btn-primary">Contáctanos</a>
+      </nav>
+    </div>
+  </header>
+</header-menu>
 
 <script>
-  const menuBtn = document.getElementById('menuBtn');
-  const navLinks = document.getElementById('navLinks');
+  class HeaderMenu extends HTMLElement {
+    constructor() {
+      super();
 
-  if (menuBtn && navLinks) {
-    // Abrir/cerrar con el botón hamburguesa
-    menuBtn.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-    });
+      const menuBtn = this.querySelector('.mobile-menu-btn');
+      const navLinks = this.querySelector('.nav-links');
 
-    // Cerrar menú al hacer clic en cualquier enlace (útil en móvil)
-    navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
-        
-        // Lógica inteligente para el botón de contacto
-        if (href === '/#contacto' || href === '#contacto') {
-          const contactSection = document.getElementById('contacto');
-          if (contactSection) {
-            e.preventDefault();
-            contactSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-        
-        navLinks.classList.remove('active');
-      });
-    });
+      if (menuBtn && navLinks) {
+        // Abrir/cerrar con el botón hamburguesa
+        menuBtn.addEventListener('click', () => {
+          navLinks.classList.toggle('active');
+        });
+
+        // Cerrar menú al hacer clic en cualquier enlace (útil en móvil)
+        navLinks.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            
+            // Lógica inteligente para el botón de contacto
+            if (href === '/#contacto' || href === '#contacto') {
+              if (window.location.pathname === '/' || window.location.pathname === '') {
+                const contactSection = document.getElementById('contacto');
+                if (contactSection) {
+                  e.preventDefault();
+                  contactSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+              // En otras páginas, no prevenimos el default, dejamos que navegue a /#contacto
+            }
+            
+            navLinks.classList.remove('active');
+          });
+        });
+      }
+    }
   }
+
+  customElements.define('header-menu', HeaderMenu);
 </script>
 
 <style>
@@ -127,10 +140,30 @@ import logoImg from '../assets/logo.jpeg';
   .nav-link {
     font-weight: 500;
     color: var(--color-text-main);
+    position: relative;
+    padding-bottom: 4px;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-accent);
+    transition: width var(--transition-fast);
   }
 
   .nav-link:hover {
     color: var(--color-accent);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
   }
 
   .mobile-menu-btn {

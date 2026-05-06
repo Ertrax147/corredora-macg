@@ -7,22 +7,27 @@ import { PortableText } from '@portabletext/react';
 
 const { slug } = Astro.params;
 
-const prop = await sanityClient.fetch(`*[_type == "propiedad" && slug.current == $slug][0] {
-  _id,
-  title,
-  type,
-  operation,
-  price,
-  address,
-  bedrooms,
-  bathrooms,
-  area,
-  description,
-  videoUrl,
-  parking,
-  storage,
-  "images": images[].asset->url
-}`, { slug });
+let prop: any = null;
+try {
+  prop = await sanityClient.fetch(`*[_type == "propiedad" && slug.current == $slug][0] {
+    _id,
+    title,
+    type,
+    operation,
+    price,
+    address,
+    bedrooms,
+    bathrooms,
+    area,
+    description,
+    videoUrl,
+    parking,
+    storage,
+    "images": images[].asset->url
+  }`, { slug });
+} catch (error) {
+  console.error("Error fetching data from Sanity:", error);
+}
 
 if (!prop) {
   return Astro.redirect('/propiedades');
@@ -59,8 +64,8 @@ const property = {
   parking: prop.parking || 0,
   storage: prop.storage || 0,
   images: prop.images && prop.images.length > 0 
-    ? prop.images.map((url: string) => `${url}?auto=format&q=80&w=1200`)
-    : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200"],
+    ? prop.images.map((url: string) => url)
+    : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"],
   description: prop.description,
   videoUrl: prop.videoUrl
 };
@@ -69,7 +74,7 @@ const property = {
 <Layout 
   title={`${property.title} | ${property.operation}`}
   description={`${property.operation} de ${property.type} en ${property.address}. ${property.bedrooms} Hab, ${property.bathrooms} Baños. Precio: ${property.price}. Superficie: ${property.area}m².`}
-  image={property.images[0]}
+  image={`${property.images[0]}?auto=format&q=70&w=800`}
 >
   <div class="property-detail-container container">
     <div class="detail-header">
@@ -100,153 +105,193 @@ const property = {
       <div class="property-grid">
         <div class="property-info" style="min-width: 0;">
           <!-- Gallery -->
-          <div class="gallery">
-          <!-- Main display: image or video -->
-          <div class="main-display-wrapper">
-            <img src={property.images[0]} alt={property.title} class="main-image" id="main-gallery-image" />
-            <div id="main-gallery-video" style="display:none;">
-              {property.videoUrl && <VideoEmbed url={property.videoUrl} />}
-            </div>
-            <!-- Flechas de navegación (solo visibles cuando hay imagen activa) -->
-            <button class="gallery-arrow gallery-arrow-prev" id="galleryPrev" aria-label="Foto anterior">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-            <button class="gallery-arrow gallery-arrow-next" id="galleryNext" aria-label="Foto siguiente">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
-            <!-- Contador de fotos -->
-            <div class="gallery-counter" id="galleryCounter">1 / {property.images.length}</div>
-            <!-- Botón pantalla completa -->
-            <button class="fullscreen-btn" id="openLightbox" aria-label="Ver en pantalla completa">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-            </button>
-          </div>
-
-          <!-- Thumbnails: fila scrolleable horizontal -->
-          <div class="thumbnail-row">
-            {property.images.map((img: string, index: number) => (
-              <img
-                src={img}
-                alt="Vista adicional"
-                class={`thumbnail ${index === 0 ? 'active' : ''}`}
-                data-type="image"
-                data-image={img}
-                data-index={index}
-              />
-            ))}
-            {property.videoUrl && (
-              <div class="thumbnail video-thumbnail" data-type="video">
-                {videoThumbnailUrl
-                  ? <img src={videoThumbnailUrl} alt="Miniatura de video" class="video-thumb-img" />
-                  : <div class="video-thumb-placeholder"></div>
-                }
-                <div class="video-play-overlay">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.5)" stroke="none"/><polygon points="10 8 16 12 10 16 10 8" fill="white"></polygon></svg>
-                </div>
+          <property-gallery>
+            <div class="gallery">
+            <!-- Main display: image or video -->
+            <div class="main-display-wrapper">
+              <img src={`${property.images[0]}?auto=format&q=70&w=1000`} alt={property.title} class="main-image" />
+              <div class="main-gallery-video" style="display:none;">
+                {property.videoUrl && <VideoEmbed url={property.videoUrl} />}
               </div>
-            )}
-          </div>
-        </div>
+              <!-- Flechas de navegación (solo visibles cuando hay imagen activa) -->
+              <button class="gallery-arrow gallery-arrow-prev" aria-label="Foto anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button class="gallery-arrow gallery-arrow-next" aria-label="Foto siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              <!-- Contador de fotos -->
+              <div class="gallery-counter">1 / {property.images.length}</div>
+              <!-- Botón pantalla completa -->
+              <button class="fullscreen-btn" aria-label="Ver en pantalla completa">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
+            </div>
 
-        <!-- Lightbox / Pantalla Completa -->
-        <div id="lightbox" class="lightbox">
-          <button class="lightbox-close" id="closeLightbox">&times;</button>
-          <img id="lightboxImage" src="" alt="Vista ampliada" />
-        </div>
+            <!-- Thumbnails: fila scrolleable horizontal -->
+            <div class="thumbnail-row">
+              {property.images.map((img: string, index: number) => (
+                <img
+                  src={`${img}?auto=format&q=60&w=200`}
+                  alt="Vista adicional"
+                  class={`thumbnail ${index === 0 ? 'active' : ''}`}
+                  data-type="image"
+                  data-image={`${img}?auto=format&q=70&w=1000`}
+                  data-index={index}
+                  loading="lazy"
+                />
+              ))}
+              {property.videoUrl && (
+                <div class="thumbnail video-thumbnail" data-type="video">
+                  {videoThumbnailUrl
+                    ? <img src={videoThumbnailUrl} alt="Miniatura de video" class="video-thumb-img" loading="lazy" />
+                    : <div class="video-thumb-placeholder"></div>
+                  }
+                  <div class="video-play-overlay">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.5)" stroke="none"/><polygon points="10 8 16 12 10 16 10 8" fill="white"></polygon></svg>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <!-- Lightbox / Pantalla Completa -->
+          <div class="lightbox">
+            <button class="lightbox-close">&times;</button>
+            <button class="lightbox-arrow lightbox-arrow-prev" aria-label="Foto anterior">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <img class="lightbox-image" src="" alt="Vista ampliada" />
+            <button class="lightbox-arrow lightbox-arrow-next" aria-label="Foto siguiente">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+            <div class="lightbox-counter"></div>
+          </div>
+        </property-gallery>
 
         <script>
-          const allThumbs  = Array.from(document.querySelectorAll('.thumbnail')) as HTMLElement[];
-          const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
-          const mainImage  = document.getElementById('main-gallery-image') as HTMLImageElement | null;
-          const mainVideo  = document.getElementById('main-gallery-video') as HTMLElement | null;
-          const prevBtn    = document.getElementById('galleryPrev') as HTMLButtonElement | null;
-          const nextBtn    = document.getElementById('galleryNext') as HTMLButtonElement | null;
-          const counter    = document.getElementById('galleryCounter') as HTMLElement | null;
+          class PropertyGallery extends HTMLElement {
+            constructor() {
+              super();
 
-          let currentIndex = 0;
+              const allThumbs  = Array.from(this.querySelectorAll('.thumbnail')) as HTMLElement[];
+              const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
+              const mainImage  = this.querySelector('.main-image') as HTMLImageElement | null;
+              const mainVideo  = this.querySelector('.main-gallery-video') as HTMLElement | null;
+              const prevBtn    = this.querySelector('.gallery-arrow-prev') as HTMLButtonElement | null;
+              const nextBtn    = this.querySelector('.gallery-arrow-next') as HTMLButtonElement | null;
+              const counter    = this.querySelector('.gallery-counter') as HTMLElement | null;
 
-          function goToMedia(index: number) {
-            if (!allThumbs.length) return;
-            currentIndex = ((index % allThumbs.length) + allThumbs.length) % allThumbs.length;
-            const target = allThumbs[currentIndex];
-            const row = target.parentElement;
+              let currentIndex = 0;
 
-            allThumbs.forEach(t => t.classList.remove('active'));
-            target.classList.add('active');
+              const openLightboxBtn = this.querySelector('.fullscreen-btn');
 
-            if (target.dataset.type === 'video') {
-              // Mostrar video, ocultar imagen
-              if (mainImage) mainImage.style.display = 'none';
-              if (mainVideo) mainVideo.style.display = 'block';
-              if (counter) counter.style.display = 'none';
-              if (openLightboxBtn) openLightboxBtn.style.display = 'none';
-              // En video podemos elegir ocultar flechas o dejarlas para salir del video
-              if (prevBtn) prevBtn.style.display = 'flex';
-              if (nextBtn) nextBtn.style.display = 'flex';
+              // Lightbox Logic
+              const lightbox = this.querySelector('.lightbox');
+              const lightboxImg = this.querySelector('.lightbox-image') as HTMLImageElement;
+              const closeLightboxBtn = this.querySelector('.lightbox-close');
+              const lightboxPrevBtn = this.querySelector('.lightbox-arrow-prev');
+              const lightboxNextBtn = this.querySelector('.lightbox-arrow-next');
+              const lightboxCounter = this.querySelector('.lightbox-counter');
 
-            } else {
-              // Mostrar imagen, ocultar video
-              if (mainImage) { 
-                mainImage.src = target.dataset.image!; 
-                mainImage.style.display = 'block'; 
-              }
-              if (mainVideo) mainVideo.style.display = 'none';
-              if (openLightboxBtn) openLightboxBtn.style.display = 'flex';
+              const openLightbox = () => {
+                if (mainImage && lightbox && lightboxImg) {
+                  lightboxImg.src = mainImage.src;
+                  if (lightboxCounter && counter) {
+                     lightboxCounter.textContent = counter.textContent;
+                  }
+                  lightbox.classList.add('active');
+                  document.body.style.overflow = 'hidden';
+                }
+              };
+
+              const closeLightbox = () => {
+                if (lightbox) {
+                  lightbox.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              };
+
+              const goToMedia = (index: number) => {
+                if (!allThumbs.length) return;
+                currentIndex = ((index % allThumbs.length) + allThumbs.length) % allThumbs.length;
+                const target = allThumbs[currentIndex];
+                const row = target.parentElement;
+
+                allThumbs.forEach(t => t.classList.remove('active'));
+                target.classList.add('active');
+
+                if (target.dataset.type === 'video') {
+                  if (mainImage) mainImage.style.display = 'none';
+                  if (mainVideo) mainVideo.style.display = 'block';
+                  if (counter) counter.style.display = 'none';
+                  if (openLightboxBtn) (openLightboxBtn as HTMLElement).style.display = 'none';
+                  if (prevBtn) prevBtn.style.display = 'flex';
+                  if (nextBtn) nextBtn.style.display = 'flex';
+                  
+                  // Si estamos en el lightbox y cambiamos a video (que no es soportado en el lightbox por ahora), lo cerramos
+                  if (lightbox?.classList.contains('active')) {
+                    closeLightbox();
+                  }
+                } else {
+                  if (mainImage) { 
+                    mainImage.src = target.dataset.image!; 
+                    mainImage.style.display = 'block'; 
+                  }
+                  if (mainVideo) mainVideo.style.display = 'none';
+                  if (openLightboxBtn) (openLightboxBtn as HTMLElement).style.display = 'flex';
+                  
+                  if (counter) { 
+                    const imgIndex = imageThumbs.indexOf(target);
+                    counter.textContent = `${imgIndex + 1} / ${imageThumbs.length}`; 
+                    counter.style.display = 'block'; 
+                    if (lightboxCounter) {
+                      lightboxCounter.textContent = counter.textContent;
+                    }
+                  }
+                  if (prevBtn) prevBtn.style.display = 'flex';
+                  if (nextBtn) nextBtn.style.display = 'flex';
+
+                  if (lightbox?.classList.contains('active') && lightboxImg && mainImage) {
+                    lightboxImg.src = mainImage.src;
+                  }
+                }
+                
+                if (row) {
+                  const scrollTarget = target.offsetLeft - (row.clientWidth / 2) + (target.clientWidth / 2);
+                  row.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+                }
+              };
+
+              allThumbs.forEach((thumb, index) => {
+                thumb.addEventListener('click', () => goToMedia(index));
+              });
+
+              prevBtn?.addEventListener('click', () => goToMedia(currentIndex - 1));
+              nextBtn?.addEventListener('click', () => goToMedia(currentIndex + 1));
+
+              openLightboxBtn?.addEventListener('click', openLightbox);
+              closeLightboxBtn?.addEventListener('click', closeLightbox);
               
-              if (counter) { 
-                // Buscamos el índice real de la imagen entre las imágenes para el contador
-                const imgIndex = imageThumbs.indexOf(target);
-                counter.textContent = `${imgIndex + 1} / ${imageThumbs.length}`; 
-                counter.style.display = 'block'; 
-              }
-              if (prevBtn) prevBtn.style.display = 'flex';
-              if (nextBtn) nextBtn.style.display = 'flex';
-            }
-            
-            // Scroll manual de la fila
-            if (row) {
-              const scrollTarget = target.offsetLeft - (row.clientWidth / 2) + (target.clientWidth / 2);
-              row.scrollTo({ left: scrollTarget, behavior: 'smooth' });
-            }
-          }
+              lightboxPrevBtn?.addEventListener('click', (e) => { e.stopPropagation(); goToMedia(currentIndex - 1); });
+              lightboxNextBtn?.addEventListener('click', (e) => { e.stopPropagation(); goToMedia(currentIndex + 1); });
 
-          allThumbs.forEach((thumb, index) => {
-            thumb.addEventListener('click', () => goToMedia(index));
-          });
+              lightbox?.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+              });
 
-          prevBtn?.addEventListener('click', () => goToMedia(currentIndex - 1));
-          nextBtn?.addEventListener('click', () => goToMedia(currentIndex + 1));
-
-          // Lightbox Logic
-          const lightbox = document.getElementById('lightbox');
-          const lightboxImg = document.getElementById('lightboxImage') as HTMLImageElement;
-          const openLightboxBtn = document.getElementById('openLightbox');
-          const closeLightboxBtn = document.getElementById('closeLightbox');
-
-          function openLightbox() {
-            if (mainImage && lightbox && lightboxImg) {
-              lightboxImg.src = mainImage.src;
-              lightbox.classList.add('active');
-              document.body.style.overflow = 'hidden'; // Bloquea scroll fondo
+              const handleEsc = (e: KeyboardEvent) => {
+                if (lightbox?.classList.contains('active')) {
+                  if (e.key === 'Escape') closeLightbox();
+                  if (e.key === 'ArrowLeft') goToMedia(currentIndex - 1);
+                  if (e.key === 'ArrowRight') goToMedia(currentIndex + 1);
+                }
+              };
+              document.addEventListener('keydown', handleEsc);
             }
           }
 
-          function closeLightbox() {
-            if (lightbox) {
-              lightbox.classList.remove('active');
-              document.body.style.overflow = ''; // Restaura scroll
-            }
-          }
-
-          openLightboxBtn?.addEventListener('click', openLightbox);
-          closeLightboxBtn?.addEventListener('click', closeLightbox);
-          lightbox?.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-          });
-
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeLightbox();
-          });
+          customElements.define('property-gallery', PropertyGallery);
         </script>
 
         <!-- Key Features -->
@@ -690,5 +735,40 @@ const property = {
     align-items: center;
     justify-content: center;
     color: var(--color-text-muted);
+  }
+
+  .lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-4);
+    opacity: 0.7;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .lightbox-arrow:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .lightbox-arrow-prev { left: var(--space-2); }
+  .lightbox-arrow-next { right: var(--space-2); }
+
+  @media (min-width: 768px) {
+    .lightbox-arrow-prev { left: var(--space-8); }
+    .lightbox-arrow-next { right: var(--space-8); }
+  }
+
+  .lightbox-counter {
+    position: absolute;
+    bottom: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: 500;
   }
 </style>

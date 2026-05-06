@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo.jpeg';
 const currentYear = new Date().getFullYear();
 ---
 
@@ -7,7 +9,7 @@ const currentYear = new Date().getFullYear();
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <img src="/logo.jpeg" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+          <Image src={logoImg} alt="Logo" class="logo-img" width={180} height={110} />
           <div class="logo-text-container">
             <span class="logo-text">MACG</span>
             <span class="logo-subtext">Propiedades</span>
