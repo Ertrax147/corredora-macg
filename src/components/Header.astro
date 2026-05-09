@@ -50,14 +50,12 @@ import logoImg from '../assets/logo.jpeg';
             
             // Lógica inteligente para el botón de contacto
             if (href === '/#contacto' || href === '#contacto') {
-              if (window.location.pathname === '/' || window.location.pathname === '') {
-                const contactSection = document.getElementById('contacto');
-                if (contactSection) {
-                  e.preventDefault();
-                  contactSection.scrollIntoView({ behavior: 'smooth' });
-                }
+              const contactSection = document.getElementById('contacto');
+              if (contactSection) {
+                e.preventDefault();
+                contactSection.scrollIntoView({ behavior: 'smooth' });
               }
-              // En otras páginas, no prevenimos el default, dejamos que navegue a /#contacto
+              // En otras páginas sin sección #contacto, no prevenimos el default, dejamos que navegue a /#contacto
             }
             
             navLinks.classList.remove('active');
