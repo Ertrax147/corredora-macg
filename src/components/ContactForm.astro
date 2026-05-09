@@ -43,32 +43,39 @@ const {
 </div>
 
 <script>
-  const form = document.getElementById('propertyContactForm') as HTMLFormElement;
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+  document.addEventListener('astro:page-load', () => {
+    // Buscar todos los formularios en caso de que haya más de uno en la página (ej. Index)
+    const forms = document.querySelectorAll('.contact-form');
+    
+    forms.forEach(form => {
+      // Remove previous listeners just in case (though with View Transitions DOM is fresh)
+      const formEl = form as HTMLFormElement;
       
-      const name = (document.getElementById('name') as HTMLInputElement).value.trim();
-      const email = (document.getElementById('email') as HTMLInputElement).value.trim();
-      const phone = (document.getElementById('phone') as HTMLInputElement).value.trim();
-      const message = (document.getElementById('message') as HTMLTextAreaElement).value.trim();
-      
-      const pageUrl = window.location.href;
-      
-      // Construir el mensaje solo con los campos que se completaron
-      let wpMessage = `Hola MACG Propiedades!\n\nMe contacto desde:\n${pageUrl}\n\n`;
-      if (name)  wpMessage += `Nombre: ${name}\n`;
-      if (email) wpMessage += `Email: ${email}\n`;
-      if (phone) wpMessage += `Teléfono: ${phone}\n`;
-      wpMessage += `\nMensaje:\n${message}`;
-      
-      const whatsappNumber = "56945745838"; 
-      const wpUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(wpMessage)}`;
-      
-      window.open(wpUrl, '_blank');
-      form.reset();
+      formEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const name = (formEl.querySelector('#name') as HTMLInputElement)?.value.trim() || '';
+        const email = (formEl.querySelector('#email') as HTMLInputElement)?.value.trim() || '';
+        const phone = (formEl.querySelector('#phone') as HTMLInputElement)?.value.trim() || '';
+        const message = (formEl.querySelector('#message') as HTMLTextAreaElement)?.value.trim() || '';
+        
+        const pageUrl = window.location.href;
+        
+        // Construir el mensaje solo con los campos que se completaron
+        let wpMessage = `Hola MACG Propiedades!\n\nMe contacto desde:\n${pageUrl}\n\n`;
+        if (name)  wpMessage += `Nombre: ${name}\n`;
+        if (email) wpMessage += `Email: ${email}\n`;
+        if (phone) wpMessage += `Teléfono: ${phone}\n`;
+        wpMessage += `\nMensaje:\n${message}`;
+        
+        const whatsappNumber = "56945745838"; 
+        const wpUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(wpMessage)}`;
+        
+        window.open(wpUrl, '_blank');
+        formEl.reset();
+      });
     });
-  }
+  });
 </script>
 
 <style>

@@ -68,7 +68,7 @@ const property = {
 
 <Layout 
   title={`${property.title} | ${property.operation}`}
-  description={`${property.operation} de ${property.type} en ${property.address}. ${property.bedrooms} Hab, ${property.bathrooms} Baños. Precio: ${property.price}. Superficie: ${property.area}m².`}
+  description={`${property.operation} de ${property.type} en ${property.address}. ${property.bedrooms} Hab, ${property.bathrooms} Baños. Precio: ${property.price}. ${property.area ? `Superficie: ${property.area}m².` : ''}`}
   image={property.images[0]}
 >
   <div class="property-detail-container container">
@@ -99,7 +99,7 @@ const property = {
     <div class="main-content">
       <div class="property-info">
         <!-- Gallery -->
-        <div class="gallery">
+        <image-gallery class="gallery">
           <!-- Main display: image or video -->
           <div class="main-display-wrapper">
             <div class="main-image-blur-bg" id="main-blur-bg" style={`background-image: url('${property.images[0]}')`}></div>
@@ -148,163 +148,174 @@ const property = {
               </div>
             )}
           </div>
-        </div>
+        </image-gallery>
 
         <script>
-          const allThumbs  = Array.from(document.querySelectorAll('.thumbnail')) as HTMLElement[];
-          const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
-          const mainImage  = document.getElementById('main-gallery-image') as HTMLImageElement | null;
-          const mainBlurBg = document.getElementById('main-blur-bg') as HTMLElement | null;
-          const mainVideo  = document.getElementById('main-gallery-video') as HTMLElement | null;
-          const prevBtn    = document.getElementById('galleryPrev') as HTMLButtonElement | null;
-          const nextBtn    = document.getElementById('galleryNext') as HTMLButtonElement | null;
-          const expandBtn  = document.getElementById('galleryExpand') as HTMLButtonElement | null;
-          const galleryWrapper = document.querySelector('.main-display-wrapper') as HTMLElement | null;
-          const counter    = document.getElementById('galleryCounter') as HTMLElement | null;
+          class ImageGallery extends HTMLElement {
+            constructor() {
+              super();
 
-          let currentIndex = 0;
-          let currentLoadId = 0;
+              const allThumbs = Array.from(this.querySelectorAll('.thumbnail')) as HTMLElement[];
+              const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
+              const mainImage = this.querySelector('#main-gallery-image') as HTMLImageElement | null;
+              const mainBlurBg = this.querySelector('#main-blur-bg') as HTMLElement | null;
+              const mainVideo = this.querySelector('#main-gallery-video') as HTMLElement | null;
+              const prevBtn = this.querySelector('#galleryPrev') as HTMLButtonElement | null;
+              const nextBtn = this.querySelector('#galleryNext') as HTMLButtonElement | null;
+              const expandBtn = this.querySelector('#galleryExpand') as HTMLButtonElement | null;
+              const counter = this.querySelector('#galleryCounter') as HTMLElement | null;
 
-          function goToImage(index: number) {
-            if (!imageThumbs.length) return;
-            currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
-            const target = imageThumbs[currentIndex] as HTMLImageElement;
-            const thumbSrc = target.src;
-            const fullSrc = target.dataset.image!;
+              let currentIndex = 0;
+              let currentLoadId = 0;
 
-            currentLoadId++;
-            const loadId = currentLoadId;
+              const goToImage = (index: number) => {
+                if (!imageThumbs.length) return;
+                currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
+                const target = imageThumbs[currentIndex] as HTMLImageElement;
+                const thumbSrc = target.src;
+                const fullSrc = target.dataset.image!;
 
-            if (mainImage) {
-              // Show thumbnail instantly (progressive loading)
-              mainImage.src = thumbSrc;
-              mainImage.style.display = 'block';
-              
-              if (mainBlurBg) {
-                mainBlurBg.style.backgroundImage = `url('${thumbSrc}')`;
-              }
-              
-              const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
-              const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
-              if (lightboxImg && lightbox && lightbox.classList.contains('active')) {
-                lightboxImg.src = thumbSrc;
-              }
+                currentLoadId++;
+                const loadId = currentLoadId;
 
-              // Load full resolution image in background
-              const img = new Image();
-              img.onload = () => {
-                if (loadId === currentLoadId) {
-                  mainImage.src = fullSrc;
+                if (mainImage) {
+                  mainImage.src = thumbSrc;
+                  mainImage.style.display = 'block';
+                  
                   if (mainBlurBg) {
-                    mainBlurBg.style.backgroundImage = `url('${fullSrc}')`;
+                    mainBlurBg.style.backgroundImage = `url('${thumbSrc}')`;
                   }
+                  
+                  // Handle global lightbox sync if open
+                  const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
+                  const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
                   if (lightboxImg && lightbox && lightbox.classList.contains('active')) {
-                    lightboxImg.src = fullSrc;
+                    lightboxImg.src = thumbSrc;
                   }
+
+                  const img = new Image();
+                  img.onload = () => {
+                    if (loadId === currentLoadId) {
+                      mainImage.src = fullSrc;
+                      if (mainBlurBg) {
+                        mainBlurBg.style.backgroundImage = `url('${fullSrc}')`;
+                      }
+                      if (lightboxImg && lightbox && lightbox.classList.contains('active')) {
+                        lightboxImg.src = fullSrc;
+                      }
+                    }
+                  };
+                  img.src = fullSrc;
+                }
+                
+                if (mainVideo) mainVideo.style.display = 'none';
+
+                allThumbs.forEach(t => t.classList.remove('active'));
+                target.classList.add('active');
+                target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                if (counter) { counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; counter.style.display = 'block'; }
+                
+                const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
+                if (lightboxCounter) { lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; }
+
+                if (prevBtn) prevBtn.style.display = 'flex';
+                if (nextBtn) nextBtn.style.display = 'flex';
+              };
+
+              // Preload images
+              const preloadImages = () => {
+                let i = 1;
+                const loadNext = () => {
+                  if (i < imageThumbs.length) {
+                    const img = new Image();
+                    img.onload = loadNext;
+                    img.onerror = loadNext;
+                    img.src = imageThumbs[i].dataset.image!;
+                    i++;
+                  }
+                };
+                if (imageThumbs.length > 1) loadNext();
+              };
+              setTimeout(preloadImages, 500);
+
+              // Setup Global Lightbox Logic (runs once per gallery instance, safe to re-bind because elements replace)
+              const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
+              const lightboxClose = document.getElementById('lightboxClose') as HTMLElement | null;
+              const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
+              const lightboxPrev = document.getElementById('lightboxPrev') as HTMLButtonElement | null;
+              const lightboxNext = document.getElementById('lightboxNext') as HTMLButtonElement | null;
+              const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
+
+              const openLightbox = () => {
+                if (lightbox && lightboxImg && mainImage) {
+                  lightboxImg.src = mainImage.src;
+                  if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`;
+                  lightbox.classList.add('active');
+                  document.body.style.overflow = 'hidden';
                 }
               };
-              img.src = fullSrc;
-            }
-            if (mainVideo) mainVideo.style.display = 'none';
 
-            allThumbs.forEach(t => t.classList.remove('active'));
-            target.classList.add('active');
-            target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+              const closeLightbox = () => {
+                if (lightbox) {
+                  lightbox.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              };
 
-            if (counter) { counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; counter.style.display = 'block'; }
-            
-            const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
-            if (lightboxCounter) { lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; }
+              if (expandBtn) expandBtn.addEventListener('click', openLightbox);
+              if (mainImage) {
+                mainImage.addEventListener('click', openLightbox);
+                mainImage.style.cursor = 'pointer';
+              }
 
-            if (prevBtn) prevBtn.style.display = 'flex';
-            if (nextBtn) nextBtn.style.display = 'flex';
-          }
+              // Event listeners bind directly to this gallery scope, so they work after ViewTransitions
+              allThumbs.forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                  allThumbs.forEach(t => t.classList.remove('active'));
+                  thumb.classList.add('active');
 
-          // Preload full images sequentially to avoid network congestion
-          function preloadImages() {
-            let i = 1; // start from 1 since 0 is already loaded
-            function loadNext() {
-              if (i < imageThumbs.length) {
-                const img = new Image();
-                img.onload = loadNext;
-                img.onerror = loadNext;
-                img.src = imageThumbs[i].dataset.image!;
-                i++;
+                  if (thumb.dataset.type === 'video') {
+                    if (mainImage) mainImage.style.display = 'none';
+                    if (mainVideo) mainVideo.style.display = 'block';
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                    if (counter) counter.style.display = 'none';
+                  } else {
+                    goToImage(parseInt(thumb.dataset.index || '0'));
+                  }
+                });
+              });
+
+              prevBtn?.addEventListener('click', () => goToImage(currentIndex - 1));
+              nextBtn?.addEventListener('click', () => goToImage(currentIndex + 1));
+
+              // Attach Lightbox global listeners only if not already attached (or re-attach safely)
+              if (lightbox && !lightbox.hasAttribute('data-initialized')) {
+                lightbox.setAttribute('data-initialized', 'true');
+                
+                lightbox.addEventListener('click', (e) => {
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('.lightbox-arrow') && !target.closest('.lightbox-close')) {
+                    closeLightbox();
+                  }
+                });
+                
+                lightboxPrev?.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex - 1); });
+                lightboxNext?.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex + 1); });
+                
+                document.addEventListener('keydown', (e) => {
+                  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+                  if (lightbox.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') goToImage(currentIndex - 1);
+                    else if (e.key === 'ArrowRight') goToImage(currentIndex + 1);
+                    else if (e.key === 'Escape') closeLightbox();
+                  }
+                });
               }
             }
-            if (imageThumbs.length > 1) loadNext();
           }
-          setTimeout(preloadImages, 500);
-
-          // Lightbox functionality
-          const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
-          const lightboxOverlay = document.getElementById('lightboxOverlay') as HTMLElement | null;
-          const lightboxClose = document.getElementById('lightboxClose') as HTMLElement | null;
-          const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
-          const lightboxPrev = document.getElementById('lightboxPrev') as HTMLButtonElement | null;
-          const lightboxNext = document.getElementById('lightboxNext') as HTMLButtonElement | null;
-          const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
-
-          function openLightbox() {
-            if (lightbox && lightboxImg && mainImage) {
-              lightboxImg.src = mainImage.src;
-              if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`;
-              lightbox.classList.add('active');
-              document.body.style.overflow = 'hidden';
-            }
-          }
-
-          function closeLightbox() {
-            if (lightbox) {
-              lightbox.classList.remove('active');
-              document.body.style.overflow = '';
-            }
-          }
-
-          if (expandBtn) expandBtn.addEventListener('click', openLightbox);
-          if (mainImage) mainImage.addEventListener('click', openLightbox);
-          if (mainImage) mainImage.style.cursor = 'pointer';
-          if (lightbox) {
-            lightbox.addEventListener('click', (e) => {
-              const target = e.target as HTMLElement;
-              // Si el click fue en cualquier lugar EXCEPTO las flechas de navegación, cerramos.
-              if (!target.closest('.lightbox-arrow') && !target.closest('.lightbox-close')) {
-                closeLightbox();
-              }
-            });
-          }
-          if (lightboxPrev) lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex - 1); });
-          if (lightboxNext) lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex + 1); });
-          
-          document.addEventListener('keydown', (e) => {
-            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-            if (e.key === 'ArrowLeft') {
-              goToImage(currentIndex - 1);
-            } else if (e.key === 'ArrowRight') {
-              goToImage(currentIndex + 1);
-            } else if (e.key === 'Escape') {
-              closeLightbox();
-            }
-          });
-          allThumbs.forEach(thumb => {
-            thumb.addEventListener('click', () => {
-              allThumbs.forEach(t => t.classList.remove('active'));
-              thumb.classList.add('active');
-
-              if (thumb.dataset.type === 'video') {
-                if (mainImage) mainImage.style.display = 'none';
-                if (mainVideo) mainVideo.style.display = 'block';
-                if (prevBtn) prevBtn.style.display = 'none';
-                if (nextBtn) nextBtn.style.display = 'none';
-                if (counter) counter.style.display = 'none';
-              } else {
-                goToImage(parseInt(thumb.dataset.index || '0'));
-              }
-            });
-          });
-
-          prevBtn?.addEventListener('click', () => goToImage(currentIndex - 1));
-          nextBtn?.addEventListener('click', () => goToImage(currentIndex + 1));
+          customElements.define('image-gallery', ImageGallery);
         </script>
 
         <!-- Key Features -->

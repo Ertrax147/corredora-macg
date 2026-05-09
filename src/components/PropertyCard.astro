@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 interface Props {
   slug: string;
   title: string;
@@ -18,7 +20,7 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
 <article class="property-card">
   <a href={`/propiedades/${slug}`} class="card-link">
     <div class="card-image-wrapper">
-      <img src={imageUrl} alt={title} class="card-image" loading="lazy" />
+      <Image src={imageUrl} alt={title} class="card-image" inferSize={true} loading="lazy" />
       <div class="badges">
         <span class={`badge ${operation.toLowerCase()}`}>{operation}</span>
         <span class="badge type">{type}</span>

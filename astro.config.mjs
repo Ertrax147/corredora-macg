@@ -12,7 +12,7 @@ export default defineConfig({
     sanity({
       projectId: 'nfw68tne',
       dataset: 'production',
-      useCdn: false,
+      useCdn: true,
       apiVersion: '2024-03-01',
       studioBasePath: '/studio',
     })
@@ -24,5 +24,8 @@ export default defineConfig({
     optimizeDeps: {
       include: ['sanity', 'sanity/structure', 'styled-components', '@portabletext/react']
     }
+  },
+  image: {
+    domains: ['cdn.sanity.io', 'images.unsplash.com', 'img.youtube.com', 'drive.google.com'],
   }
 });

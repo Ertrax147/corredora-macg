@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ContactForm from '../components/ContactForm.astro';
+import { Image } from 'astro:assets';
 
 const insurances = [
   {
@@ -44,7 +45,7 @@ const insurances = [
       {insurances.map(insurance => (
         <div class="insurance-card">
           <div class="card-image-wrapper">
-            <img src={insurance.image} alt={insurance.title} loading="lazy" />
+            <Image src={insurance.image} alt={insurance.title} loading="lazy" inferSize={true} />
           </div>
           <div class="card-body">
             <h3>{insurance.title}</h3>

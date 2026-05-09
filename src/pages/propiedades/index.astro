@@ -442,28 +442,31 @@ function getPageUrl(p: number) {
 </style>
 
 <script>
-  // Lógica para el selector de dormitorios
-  const roomBtns = document.querySelectorAll('.room-btn');
-  const bedsInput = document.getElementById('f-beds') as HTMLInputElement;
-  const form = document.getElementById('catalogFilters') as HTMLFormElement;
+  document.addEventListener('astro:page-load', () => {
+    // Lógica para el selector de dormitorios
+    const roomBtns = document.querySelectorAll('.room-btn');
+    const bedsInput = document.getElementById('f-beds') as HTMLInputElement;
+    const form = document.getElementById('catalogFilters') as HTMLFormElement;
 
-  roomBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      roomBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      bedsInput.value = btn.getAttribute('data-val') || '';
+    roomBtns.forEach(btn => {
+      // Remove any existing listener by cloning (if needed) or just trust View Transitions fresh DOM
+      btn.addEventListener('click', () => {
+        roomBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if(bedsInput) bedsInput.value = btn.getAttribute('data-val') || '';
+      });
     });
+
+    // Toggle de filtros en móvil
+    const filterToggle = document.getElementById('filterToggle');
+    const filtersSidebar = document.getElementById('filtersSidebar');
+
+    if (filterToggle && filtersSidebar) {
+      filterToggle.addEventListener('click', () => {
+        const isOpen = filtersSidebar.classList.toggle('open');
+        filterToggle.setAttribute('aria-expanded', String(isOpen));
+        filterToggle.textContent = isOpen ? '✕ Cerrar filtros' : '⚙ Filtrar propiedades';
+      });
+    }
   });
-
-  // Toggle de filtros en móvil
-  const filterToggle = document.getElementById('filterToggle');
-  const filtersSidebar = document.getElementById('filtersSidebar');
-
-  if (filterToggle && filtersSidebar) {
-    filterToggle.addEventListener('click', () => {
-      const isOpen = filtersSidebar.classList.toggle('open');
-      filterToggle.setAttribute('aria-expanded', String(isOpen));
-      filterToggle.textContent = isOpen ? '✕ Cerrar filtros' : '⚙ Filtrar propiedades';
-    });
-  }
 </script>
