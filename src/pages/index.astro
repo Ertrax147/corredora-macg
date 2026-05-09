@@ -4,50 +4,51 @@ import SearchForm from '../components/SearchForm.astro';
 import PropertyCard from '../components/PropertyCard.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { sanityClient } from 'sanity:client';
+import type { Propiedad } from '../types';
 
-interface Propiedad {
-  slug: string;
-  title: string;
-  type: string;
-  operation: 'Arriendo' | 'Venta';
-  price: string;
-  address: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  imageUrl: string | null;
+let recentProperties: Propiedad[] = [];
+let uniqueLocations: string[] = [];
+
+try {
+  const recentPropertiesRaw = await sanityClient.fetch<Propiedad[]>(`*[_type == "propiedad"] | order(_createdAt desc)[0...3] {
+    "slug": slug.current,
+    title,
+    type,
+    operation,
+    price,
+    address,
+    bedrooms,
+    bathrooms,
+    area,
+    "imageUrl": images[0].asset->url
+  }`);
+
+  // Optimizar imágenes
+  recentProperties = recentPropertiesRaw.map(prop => ({
+    ...prop,
+    imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=500&q=60` : null
+  }));
+
+  const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
+  uniqueLocations = [...new Set(rawLocations)].sort();
+} catch (error) {
+  console.error("Error fetching data from Sanity:", error);
 }
-
-const recentPropertiesRaw = await sanityClient.fetch<Propiedad[]>(`*[_type == "propiedad"] | order(_createdAt desc)[0...3] {
-  "slug": slug.current,
-  title,
-  type,
-  operation,
-  price,
-  address,
-  bedrooms,
-  bathrooms,
-  area,
-  "imageUrl": images[0].asset->url
-}`);
-
-// Optimizar imágenes
-const recentProperties = recentPropertiesRaw.map(prop => ({
-  ...prop,
-  imageUrl: prop.imageUrl ? `${prop.imageUrl}?auto=format&w=800&q=80` : null
-}));
-
-const rawLocations = await sanityClient.fetch<string[]>(`*[_type == "propiedad" && defined(address)].address`);
-const uniqueLocations = [...new Set(rawLocations)].sort();
 ---
 
 <Layout title="Inicio">
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-bg">
-      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000" alt="MACG Propiedades Hero" />
+      <img 
+        src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=60&w=1200" 
+        alt="MACG Propiedades Hero" 
+        loading="eager"
+        fetchpriority="high"
+      />
       <div class="hero-overlay"></div>
     </div>
+
     
     <div class="container hero-content">
       <h1 class="hero-title">Encuentra tu próximo hogar con MACG</h1>
@@ -96,14 +97,14 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
         <p>Conoce nuestras soluciones de seguros para propietarios y arrendatarios. Protege tu inversión con nuestras garantías exclusivas.</p>
         <a href="/seguros" class="btn btn-primary">Descubrir Seguros</a>
       </div>
-      <div class="banner-image fade-up">
+      <div class="banner-image">
         <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800" alt="Seguros MACG" />
       </div>
     </div>
   </section>
 
   <!-- Contact Section -->
-  <section id="contacto" class="contact-section section" style="background-color: var(--color-surface);">
+  <section class="contact-section section" style="background-color: var(--color-surface);">
     <div class="container">
       <div class="section-header fade-up" style="text-align: center; margin-bottom: var(--space-8);">
         <h2 class="section-title">Contáctanos</h2>

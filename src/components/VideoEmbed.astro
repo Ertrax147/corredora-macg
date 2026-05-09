@@ -24,7 +24,7 @@ if (getYouTubeId(url)) {
 } else if (isDrive) {
   // Convert drive view link to preview link
   const previewUrl = url.replace(/\/view.*$/, "/preview");
-  embedHtml = `<iframe src="${previewUrl}" width="100%" height="400" allow="autoplay" style="border-radius: var(--radius-lg); border: none;"></iframe>`;
+  embedHtml = `<iframe src="${previewUrl}" width="100%" height="100%" allow="autoplay" allowfullscreen style="border-radius: var(--radius-lg); border: none; min-height: 320px; aspect-ratio: 16/9;"></iframe>`;
 } else if (isTikTok) {
   // TikTok has oEmbed API but for simplicity we can just render a link or use an iframe if possible.
   // Actually TikTok embed code is complex, better to link it if we don't have the script.

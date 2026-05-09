@@ -59,6 +59,9 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-normal), box-shadow var(--transition-normal);
     border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .property-card:hover {
@@ -67,15 +70,23 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
   }
 
   .card-link {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     color: inherit;
     text-decoration: none;
   }
 
   .card-image-wrapper {
     position: relative;
-    aspect-ratio: 4/3;
+    aspect-ratio: 16/9; /* Más panorámico en móvil */
     overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .card-image-wrapper {
+      aspect-ratio: 4/3;
+    }
   }
 
   .card-image {
@@ -120,22 +131,43 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
   }
 
   .card-content {
-    padding: var(--space-5);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  @media (min-width: 768px) {
+    .card-content {
+      padding: var(--space-5);
+    }
   }
 
   .card-price {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--color-primary);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
+    font-weight: 700;
   }
+
+  @media (min-width: 768px) {
+    .card-price {
+      font-size: 1.5rem;
+      margin-bottom: var(--space-2);
+    }
+  }
+
 
   .card-title {
     font-size: 1.125rem;
     color: var(--color-text-main);
     margin-bottom: var(--space-2);
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.4;
+    min-height: 3.15rem; /* ~2 lines */
   }
 
   .card-address {
@@ -152,6 +184,7 @@ const { slug, title, type, operation, price, address, bedrooms, bathrooms, area,
     justify-content: space-between;
     padding-top: var(--space-4);
     border-top: 1px solid var(--color-border);
+    margin-top: auto;
   }
 
   .feature {
