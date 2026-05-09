@@ -1,9 +1,18 @@
 ---
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const { 
+  title = "¿Tienes dudas o te interesa una propiedad?", 
+  subtitle = "Déjanos tus datos y te responderemos por WhatsApp a la brevedad."
+} = Astro.props;
 ---
 
 <div class="contact-box">
-  <h3>¿Tienes dudas o te interesa una propiedad?</h3>
-  <p>Déjanos tus datos y te responderemos por WhatsApp a la brevedad.</p>
+  <h3>{title}</h3>
+  <p>{subtitle}</p>
   
   <form class="contact-form" id="propertyContactForm">
     <div class="form-group">

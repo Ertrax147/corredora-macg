@@ -61,10 +61,12 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
 
   <!-- Recent Properties -->
   <section class="recent-properties container section">
-    <h2 class="section-title">Propiedades Destacadas</h2>
-    <p class="section-subtitle">Explora nuestras últimas opciones disponibles</p>
+    <div class="fade-up">
+      <h2 class="section-title">Propiedades Destacadas</h2>
+      <p class="section-subtitle">Explora nuestras últimas opciones disponibles</p>
+    </div>
     
-    <div class="property-grid">
+    <div class="property-grid fade-in-stagger">
       {recentProperties.map(prop => (
         <PropertyCard
           slug={prop.slug}
@@ -81,7 +83,7 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
       ))}
     </div>
     
-    <div class="view-all-container">
+    <div class="view-all-container fade-up">
       <a href="/propiedades" class="btn btn-outline btn-lg">Ver todo el catálogo</a>
     </div>
   </section>
@@ -89,26 +91,26 @@ const uniqueLocations = [...new Set(rawLocations)].sort();
   <!-- Why Choose Us / Insurance Banner -->
   <section class="insurance-banner">
     <div class="container banner-content">
-      <div class="banner-text">
+      <div class="banner-text fade-up">
         <h2>Mucho más que corretaje, somos tu respaldo</h2>
         <p>Conoce nuestras soluciones de seguros para propietarios y arrendatarios. Protege tu inversión con nuestras garantías exclusivas.</p>
         <a href="/seguros" class="btn btn-primary">Descubrir Seguros</a>
       </div>
-      <div class="banner-image">
+      <div class="banner-image fade-up">
         <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800" alt="Seguros MACG" />
       </div>
     </div>
   </section>
 
   <!-- Contact Section -->
-  <section class="contact-section section" style="background-color: var(--color-surface);">
+  <section id="contacto" class="contact-section section" style="background-color: var(--color-surface);">
     <div class="container">
-      <div class="section-header" style="text-align: center; margin-bottom: var(--space-8);">
+      <div class="section-header fade-up" style="text-align: center; margin-bottom: var(--space-8);">
         <h2 class="section-title">Contáctanos</h2>
         <p class="section-subtitle">¿Tienes dudas sobre alguna propiedad o nuestros servicios? Escríbenos.</p>
       </div>
       
-      <div class="contact-grid" style="display: grid; gap: var(--space-8); grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;">
+      <div class="contact-grid fade-up" style="display: grid; gap: var(--space-8); grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;">
         <div class="contact-form-wrapper" style="margin: 0 auto; width: 100%; max-width: 500px;">
           <ContactForm />
         </div>

@@ -95,20 +95,30 @@ export const propiedad = defineType({
       name: 'images',
       title: 'Galería de Fotos',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [{
+        type: 'image',
+        options: {
+          hotspot: true,
+          storeOriginalFilename: true,
+        }
+      }],
+      options: {
+        layout: 'grid',
+      },
+      description: 'Puedes subir varias fotos a la vez arrastrándolas o seleccionándolas todas juntas.',
       validation: (Rule) => Rule.required().min(1),
-    }),
-    defineField({
-      name: 'description',
-      title: 'Descripción Detallada',
-      type: 'array',
-      of: [{ type: 'block' }],
     }),
     defineField({
       name: 'videoUrl',
       title: 'Link de Video (YouTube, Instagram, TikTok, Drive, etc.)',
       type: 'url',
       description: 'Pega aquí el enlace de tu video. Es opcional.',
+    }),
+    defineField({
+      name: 'description',
+      title: 'Descripción Detallada',
+      type: 'array',
+      of: [{ type: 'block' }],
     }),
   ],
   preview: {

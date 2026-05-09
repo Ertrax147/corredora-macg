@@ -48,6 +48,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url);
 			<slot />
 		</main>
 		<Footer />
+
+		<script>
+			// Intersection Observer para animaciones al hacer scroll
+			const observerOptions = {
+				root: null,
+				rootMargin: '0px',
+				threshold: 0.1
+			};
+
+			const observer = new IntersectionObserver((entries, observer) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('in-view');
+						observer.unobserve(entry.target);
+					}
+				});
+			}, observerOptions);
+
+			document.addEventListener('DOMContentLoaded', () => {
+				const fadeElements = document.querySelectorAll('.fade-in, .fade-up, .fade-in-stagger > *');
+				fadeElements.forEach(el => observer.observe(el));
+			});
+		</script>
 	</body>
 </html>
 

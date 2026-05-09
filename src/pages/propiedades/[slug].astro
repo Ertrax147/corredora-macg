@@ -102,6 +102,7 @@ const property = {
         <div class="gallery">
           <!-- Main display: image or video -->
           <div class="main-display-wrapper">
+            <div class="main-image-blur-bg" id="main-blur-bg" style={`background-image: url('${property.images[0]}')`}></div>
             <img src={property.images[0]} alt={property.title} class="main-image" id="main-gallery-image" />
             <div id="main-gallery-video" style="display:none;">
               {property.videoUrl && <VideoEmbed url={property.videoUrl} />}
@@ -115,13 +116,19 @@ const property = {
             </button>
             <!-- Contador de fotos -->
             <div class="gallery-counter" id="galleryCounter">1 / {property.images.length}</div>
+            <!-- Botón de expandir (fullscreen) -->
+            <button class="gallery-expand" id="galleryExpand" aria-label="Pantalla completa">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+              </svg>
+            </button>
           </div>
 
           <!-- Thumbnails: fila scrolleable horizontal -->
           <div class="thumbnail-row">
             {property.images.map((img: string, index: number) => (
               <img
-                src={img}
+                src={img.replace('w=1200', 'w=300')}
                 alt="Vista adicional"
                 class={`thumbnail ${index === 0 ? 'active' : ''}`}
                 data-type="image"
@@ -147,19 +154,57 @@ const property = {
           const allThumbs  = Array.from(document.querySelectorAll('.thumbnail')) as HTMLElement[];
           const imageThumbs = allThumbs.filter(t => t.dataset.type === 'image');
           const mainImage  = document.getElementById('main-gallery-image') as HTMLImageElement | null;
+          const mainBlurBg = document.getElementById('main-blur-bg') as HTMLElement | null;
           const mainVideo  = document.getElementById('main-gallery-video') as HTMLElement | null;
           const prevBtn    = document.getElementById('galleryPrev') as HTMLButtonElement | null;
           const nextBtn    = document.getElementById('galleryNext') as HTMLButtonElement | null;
+          const expandBtn  = document.getElementById('galleryExpand') as HTMLButtonElement | null;
+          const galleryWrapper = document.querySelector('.main-display-wrapper') as HTMLElement | null;
           const counter    = document.getElementById('galleryCounter') as HTMLElement | null;
 
           let currentIndex = 0;
+          let currentLoadId = 0;
 
           function goToImage(index: number) {
             if (!imageThumbs.length) return;
             currentIndex = ((index % imageThumbs.length) + imageThumbs.length) % imageThumbs.length;
-            const target = imageThumbs[currentIndex];
+            const target = imageThumbs[currentIndex] as HTMLImageElement;
+            const thumbSrc = target.src;
+            const fullSrc = target.dataset.image!;
 
-            if (mainImage) { mainImage.src = target.dataset.image!; mainImage.style.display = 'block'; }
+            currentLoadId++;
+            const loadId = currentLoadId;
+
+            if (mainImage) {
+              // Show thumbnail instantly (progressive loading)
+              mainImage.src = thumbSrc;
+              mainImage.style.display = 'block';
+              
+              if (mainBlurBg) {
+                mainBlurBg.style.backgroundImage = `url('${thumbSrc}')`;
+              }
+              
+              const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
+              const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
+              if (lightboxImg && lightbox && lightbox.classList.contains('active')) {
+                lightboxImg.src = thumbSrc;
+              }
+
+              // Load full resolution image in background
+              const img = new Image();
+              img.onload = () => {
+                if (loadId === currentLoadId) {
+                  mainImage.src = fullSrc;
+                  if (mainBlurBg) {
+                    mainBlurBg.style.backgroundImage = `url('${fullSrc}')`;
+                  }
+                  if (lightboxImg && lightbox && lightbox.classList.contains('active')) {
+                    lightboxImg.src = fullSrc;
+                  }
+                }
+              };
+              img.src = fullSrc;
+            }
             if (mainVideo) mainVideo.style.display = 'none';
 
             allThumbs.forEach(t => t.classList.remove('active'));
@@ -167,10 +212,80 @@ const property = {
             target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
             if (counter) { counter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; counter.style.display = 'block'; }
+            
+            const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
+            if (lightboxCounter) { lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`; }
+
             if (prevBtn) prevBtn.style.display = 'flex';
             if (nextBtn) nextBtn.style.display = 'flex';
           }
 
+          // Preload full images sequentially to avoid network congestion
+          function preloadImages() {
+            let i = 1; // start from 1 since 0 is already loaded
+            function loadNext() {
+              if (i < imageThumbs.length) {
+                const img = new Image();
+                img.onload = loadNext;
+                img.onerror = loadNext;
+                img.src = imageThumbs[i].dataset.image!;
+                i++;
+              }
+            }
+            if (imageThumbs.length > 1) loadNext();
+          }
+          setTimeout(preloadImages, 500);
+
+          // Lightbox functionality
+          const lightbox = document.getElementById('galleryLightbox') as HTMLElement | null;
+          const lightboxOverlay = document.getElementById('lightboxOverlay') as HTMLElement | null;
+          const lightboxClose = document.getElementById('lightboxClose') as HTMLElement | null;
+          const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement | null;
+          const lightboxPrev = document.getElementById('lightboxPrev') as HTMLButtonElement | null;
+          const lightboxNext = document.getElementById('lightboxNext') as HTMLButtonElement | null;
+          const lightboxCounter = document.getElementById('lightboxCounter') as HTMLElement | null;
+
+          function openLightbox() {
+            if (lightbox && lightboxImg && mainImage) {
+              lightboxImg.src = mainImage.src;
+              if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${imageThumbs.length}`;
+              lightbox.classList.add('active');
+              document.body.style.overflow = 'hidden';
+            }
+          }
+
+          function closeLightbox() {
+            if (lightbox) {
+              lightbox.classList.remove('active');
+              document.body.style.overflow = '';
+            }
+          }
+
+          if (expandBtn) expandBtn.addEventListener('click', openLightbox);
+          if (mainImage) mainImage.addEventListener('click', openLightbox);
+          if (mainImage) mainImage.style.cursor = 'pointer';
+          if (lightbox) {
+            lightbox.addEventListener('click', (e) => {
+              const target = e.target as HTMLElement;
+              // Si el click fue en cualquier lugar EXCEPTO las flechas de navegación, cerramos.
+              if (!target.closest('.lightbox-arrow') && !target.closest('.lightbox-close')) {
+                closeLightbox();
+              }
+            });
+          }
+          if (lightboxPrev) lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex - 1); });
+          if (lightboxNext) lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); goToImage(currentIndex + 1); });
+          
+          document.addEventListener('keydown', (e) => {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+            if (e.key === 'ArrowLeft') {
+              goToImage(currentIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+              goToImage(currentIndex + 1);
+            } else if (e.key === 'Escape') {
+              closeLightbox();
+            }
+          });
           allThumbs.forEach(thumb => {
             thumb.addEventListener('click', () => {
               allThumbs.forEach(t => t.classList.remove('active'));
@@ -230,6 +345,25 @@ const property = {
         <ContactForm />
       </aside>
     </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" id="galleryLightbox">
+    <div class="lightbox-overlay" id="lightboxOverlay"></div>
+    <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">&times;</button>
+    
+    <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" aria-label="Anterior">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+
+    <div class="lightbox-content">
+      <img src="" alt="Imagen ampliada" class="lightbox-img" id="lightboxImg" />
+      <div class="lightbox-counter" id="lightboxCounter">1 / 1</div>
+    </div>
+
+    <button class="lightbox-arrow lightbox-next" id="lightboxNext" aria-label="Siguiente">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
   </div>
 </Layout>
 
@@ -342,8 +476,13 @@ const property = {
     }
   }
 
+  .property-info {
+    min-width: 0; /* Fix grid blowout */
+  }
+
   .gallery {
     margin-bottom: var(--space-8);
+    min-width: 0;
   }
 
   .main-display-wrapper {
@@ -351,12 +490,29 @@ const property = {
     margin-bottom: var(--space-4);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    background-color: var(--color-primary-dark);
+    aspect-ratio: 16/9; /* Wrapper maintains aspect ratio */
+  }
+
+  .main-image-blur-bg {
+    position: absolute;
+    inset: -10%; /* extend past edges to hide the hard edges of the blur vignette */
+    width: 120%;
+    height: 120%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    opacity: 0.5;
+    z-index: 0;
+    transition: background-image var(--transition-fast);
   }
 
   .main-image {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    aspect-ratio: 16/9;
-    object-fit: cover;
+    height: 100%;
+    object-fit: contain;
     display: block;
   }
 
@@ -398,6 +554,30 @@ const property = {
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-sm);
     backdrop-filter: blur(4px);
+  }
+
+  .gallery-expand {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+
+  .gallery-expand:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
   }
 
   /* ── Thumbnail row ── */
@@ -519,6 +699,10 @@ const property = {
     color: var(--color-primary);
   }
 
+  .video-section {
+    margin-bottom: var(--space-8);
+  }
+
   .description-section, .map-section {
     margin-bottom: var(--space-8);
   }
@@ -545,5 +729,114 @@ const property = {
     align-items: center;
     justify-content: center;
     color: var(--color-text-muted);
+  }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+  }
+
+  .lightbox.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lightbox-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    cursor: zoom-out;
+  }
+
+  .lightbox-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90vw;
+    height: 90vh;
+  }
+
+  .lightbox-img {
+    width: 100%;
+    height: calc(100% - 40px);
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
+  }
+
+  .lightbox-counter {
+    color: white;
+    font-size: 1rem;
+    margin-top: var(--space-3);
+    font-weight: 500;
+  }
+
+  .lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform var(--transition-fast);
+  }
+
+  .lightbox-arrow:hover {
+    transform: translateY(-50%) scale(1.2);
+  }
+
+  .lightbox-prev {
+    left: var(--space-2);
+  }
+
+  .lightbox-next {
+    right: var(--space-2);
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-prev {
+      left: var(--space-6);
+    }
+    .lightbox-next {
+      right: var(--space-6);
+    }
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 2.5rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform var(--transition-fast);
+  }
+
+  .lightbox-close:hover {
+    transform: scale(1.1);
   }
 </style>

@@ -101,10 +101,30 @@
   .nav-link {
     font-weight: 500;
     color: var(--color-text-main);
+    text-decoration: none;
+    position: relative;
+    transition: color var(--transition-normal);
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-accent);
+    transition: width var(--transition-normal);
+    border-radius: 2px;
   }
 
   .nav-link:hover {
     color: var(--color-accent);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
   }
 
   .mobile-menu-btn {
